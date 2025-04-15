@@ -5,7 +5,7 @@ import * as dotenv from 'dotenv'
 import multer from "multer";
 
 const app = express();
-const port: number = 3000;
+const port: number = 3001;
 
 dotenv.config()
 
