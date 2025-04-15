@@ -51,11 +51,11 @@ const express_1 = __importDefault(require("express"));
 const dotenv = __importStar(require("dotenv"));
 const multer_1 = __importDefault(require("multer"));
 const app = (0, express_1.default)();
-const port = 3000;
 dotenv.config();
 const openai = new index_mjs_1.default({
     apiKey: process.env.APIKEY,
 });
+const port = process.env.PORT || "3001";
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, callback) {
         callback(null, './inbox');
@@ -70,7 +70,7 @@ app.post('/transcribe', upload.single('file'), (req, res) => __awaiter(void 0, v
         res.status(400).send('No file uploaded');
     }
     else {
-        console.log(req.file.path);
+        console.log(`File uploaded - req.file.path`);
         try {
             const transcription = yield openai.audio.transcriptions.create({
                 file: fs_1.default.createReadStream(req.file.path),

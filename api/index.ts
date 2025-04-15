@@ -5,13 +5,14 @@ import * as dotenv from 'dotenv'
 import multer from "multer";
 
 const app = express();
-const port: number = 3001;
 
 dotenv.config()
 
 const openai: OpenAI = new OpenAI({
   apiKey: process.env.APIKEY,
 });
+
+const port: string = process.env.PORT || "3001";
 
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
