@@ -45,27 +45,46 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const fs_1 = __importDefault(require("fs"));
+const fs_1 = __importStar(require("fs"));
 const index_mjs_1 = __importDefault(require("openai/index.mjs"));
 const express_1 = __importDefault(require("express"));
 const dotenv = __importStar(require("dotenv"));
+const multer_1 = __importDefault(require("multer"));
 const app = (0, express_1.default)();
 const port = 3000;
 dotenv.config();
 const openai = new index_mjs_1.default({
     apiKey: process.env.APIKEY,
 });
-app.post('/transcribe', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const transcription = yield openai.audio.transcriptions.create({
-            file: fs_1.default.createReadStream("audio.mp3"),
-            model: "whisper-1",
-            language: "en",
-        });
-        res.send(transcription);
+const storage = multer_1.default.diskStorage({
+    destination: function (req, file, callback) {
+        callback(null, './inbox');
+    },
+    filename: function (req, file, callback) {
+        callback(null, `${Date.now()}_${file.originalname}`);
     }
-    catch (error) {
-        res.send(error);
+});
+const upload = (0, multer_1.default)({ storage: storage });
+app.post('/transcribe', upload.single('file'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.file) {
+        res.status(400).send('No file uploaded');
+    }
+    else {
+        console.log(req.file.path);
+        try {
+            const transcription = yield openai.audio.transcriptions.create({
+                file: fs_1.default.createReadStream(req.file.path),
+                model: "whisper-1",
+                language: "en",
+            });
+            res.send(transcription);
+        }
+        catch (error) {
+            res.send(error);
+        }
+        finally {
+            yield (0, fs_1.unlinkSync)(req.file.path);
+        }
     }
 }));
 app.listen(port, () => {
