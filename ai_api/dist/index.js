@@ -46,7 +46,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importStar(require("fs"));
-const index_mjs_1 = __importDefault(require("openai/index.mjs"));
+const openai_1 = __importDefault(require("openai"));
 const express_1 = __importDefault(require("express"));
 const dotenv = __importStar(require("dotenv"));
 const multer_1 = __importDefault(require("multer"));
@@ -54,10 +54,10 @@ const cors = require('cors');
 const app = (0, express_1.default)();
 app.use(cors());
 dotenv.config();
-const openai = new index_mjs_1.default({
+const openai = new openai_1.default({
     apiKey: process.env.APIKEY,
 });
-const port = process.env.PORT || "3001";
+const port = process.env.PORT || "3000";
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, callback) {
         callback(null, './inbox');
@@ -90,5 +90,5 @@ app.post('/transcribe', upload.single('file'), (req, res) => __awaiter(void 0, v
     }
 }));
 app.listen(port, () => {
-    console.log(`API running on port ${port}`);
+    console.log(`AI API running on port ${port}`);
 });

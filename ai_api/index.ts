@@ -14,7 +14,7 @@ const openai: OpenAI = new OpenAI({
   apiKey: process.env.APIKEY,
 });
 
-const port: string = process.env.PORT || "3001";
+const port: string = process.env.PORT || "3000";
 
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
@@ -49,5 +49,5 @@ app.post('/transcribe', upload.single('file'), async(req: Request, res: Response
 });
 
 app.listen(port, ()=> {
-  console.log(`API running on port ${port}`);
+  console.log(`AI API running on port ${port}`);
 })

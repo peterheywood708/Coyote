@@ -6,18 +6,16 @@ import {
   Group,
   Paper,
   Space,
-} from "@mantine/core";
-import { useState, useEffect } from "react";
-import { useDisclosure } from "@mantine/hooks";
-import "./App.css";
-import "@mantine/core/styles.css";
-import {
   MantineProvider,
   Loader,
   Text,
   Flex,
   createTheme,
 } from "@mantine/core";
+import { useState, useEffect } from "react";
+import { useDisclosure } from "@mantine/hooks";
+import "./App.css";
+import "@mantine/core/styles.css";
 
 const theme = createTheme({
   colors: {
@@ -46,6 +44,23 @@ function App() {
   const [data, setData] = useState<IData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
+  const SendTranscript = async () => {
+    setLoading(true);
+    const transcriptResponse: Response = await fetch(
+      `${import.meta.env.VITE_DB_ENDPOINT}/store`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    const body = await transcriptResponse.json();
+    console.log(body);
+    setLoading(false);
+  };
+
   useEffect(() => {
     const GetData = async () => {
       if (file) {
@@ -53,7 +68,7 @@ function App() {
         const formData: FormData = new FormData();
         formData.append("file", file);
         const response: Response = await fetch(
-          "http://localhost:3000/transcribe",
+          `${import.meta.env.VITE_AI_ENDPOINT}/transcribe`,
           {
             method: "POST",
             body: formData,
@@ -128,7 +143,9 @@ function App() {
                     wrap="wrap"
                   >
                     <Button color="ocean-blue">Back</Button>
-                    <Button color="ocean-blue">Save</Button>
+                    <Button color="ocean-blue" onClick={() => SendTranscript()}>
+                      Save
+                    </Button>
                   </Flex>
                 </>
               )
