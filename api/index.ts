@@ -3,8 +3,10 @@ import OpenAI from "openai/index.mjs";
 import express, { Request, Response} from 'express';
 import * as dotenv from 'dotenv'
 import multer from "multer";
+const cors = require('cors');
 
 const app = express();
+app.use(cors());
 
 dotenv.config()
 
@@ -29,7 +31,7 @@ app.post('/transcribe', upload.single('file'), async(req: Request, res: Response
   if(!req.file){
     res.status(400).send('No file uploaded');
   }else{
-    console.log(`File uploaded - req.file.path`);
+    console.log(`File uploaded - ${req.file.path}`);
     try {
       const transcription = await openai.audio.transcriptions.create({
         file: fs.createReadStream(req.file.path),

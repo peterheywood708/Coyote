@@ -50,7 +50,9 @@ const index_mjs_1 = __importDefault(require("openai/index.mjs"));
 const express_1 = __importDefault(require("express"));
 const dotenv = __importStar(require("dotenv"));
 const multer_1 = __importDefault(require("multer"));
+const cors = require('cors');
 const app = (0, express_1.default)();
+app.use(cors());
 dotenv.config();
 const openai = new index_mjs_1.default({
     apiKey: process.env.APIKEY,
@@ -70,7 +72,7 @@ app.post('/transcribe', upload.single('file'), (req, res) => __awaiter(void 0, v
         res.status(400).send('No file uploaded');
     }
     else {
-        console.log(`File uploaded - req.file.path`);
+        console.log(`File uploaded - ${req.file.path}`);
         try {
             const transcription = yield openai.audio.transcriptions.create({
                 file: fs_1.default.createReadStream(req.file.path),

@@ -11,17 +11,34 @@ import { useState, useEffect } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import "./App.css";
 import "@mantine/core/styles.css";
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, Container, Loader } from "@mantine/core";
 
 function App() {
   const [opened, { toggle }] = useDisclosure();
   const [file, setFile] = useState<File | null>(null);
   const [data, setData] = useState<Object | null>(null);
+  const [loading, setLoading] = useState<Boolean>(false);
 
   useEffect(() => {
-    if (file) {
-      alert(file?.name);
-    }
+    const GetData = async () => {
+      if (file) {
+        setLoading(true);
+        let formData: FormData = new FormData();
+        formData.append("file", file);
+        let response: Response = await fetch(
+          "http://localhost:3000/transcribe",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+        const body: Response = await response.json();
+        console.log(body);
+        setData(body);
+        setLoading(false);
+      }
+    };
+    GetData();
   }, [file]);
 
   return (
@@ -37,27 +54,36 @@ function App() {
       >
         <AppShell.Header>
           <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <div>
-            <h2>Coyote</h2>
-          </div>
+          <div>Coyote</div>
         </AppShell.Header>
 
         <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
 
         <AppShell.Main>
-          Upload and transcribe audio
+          Select an audio file by clicking the upload button below. Only mp3 and
+          wav files are supported.
           <Space h="md" />
-          <Group justify="center">
-            <FileButton onChange={setFile} accept="audio/mp3,audio/wav">
-              {(props) => <Button {...props}>Upload audio</Button>}
-            </FileButton>
-          </Group>
-          {file && (
-            <>
-              <Text size="sm" ta="center" mt="sm">
-                Selected file: {file.name}
-              </Text>
-            </>
+          {!loading ? (
+            !data ? (
+              <Container fluid bg="var(--mantine-color-blue-light)">
+                {" "}
+                <Space h="md" />
+                <Group justify="center">
+                  <FileButton onChange={setFile} accept="audio/mp3,audio/wav">
+                    {(props) => (
+                      <Button {...props}>
+                        {file ? file.name : "Upload audio"}
+                      </Button>
+                    )}
+                  </FileButton>
+                </Group>
+                <Space h="md" />
+              </Container>
+            ) : (
+              <>Transcript: {data?.text}</>
+            )
+          ) : (
+            <Loader color="blue" />
           )}
         </AppShell.Main>
       </AppShell>
