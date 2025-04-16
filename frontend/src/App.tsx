@@ -4,14 +4,14 @@ import {
   FileButton,
   Button,
   Group,
-  Text,
+  Paper,
   Space,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import "./App.css";
 import "@mantine/core/styles.css";
-import { MantineProvider, Container, Loader } from "@mantine/core";
+import { MantineProvider, Loader } from "@mantine/core";
 
 function App() {
   const [opened, { toggle }] = useDisclosure();
@@ -60,31 +60,34 @@ function App() {
         <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
 
         <AppShell.Main>
-          Select an audio file by clicking the upload button below. Only mp3 and
-          wav files are supported.
-          <Space h="md" />
-          {!loading ? (
-            !data ? (
-              <Container fluid bg="var(--mantine-color-blue-light)">
-                {" "}
-                <Space h="md" />
-                <Group justify="center">
-                  <FileButton onChange={setFile} accept="audio/mp3,audio/wav">
-                    {(props) => (
-                      <Button {...props}>
-                        {file ? file.name : "Upload audio"}
-                      </Button>
-                    )}
-                  </FileButton>
-                </Group>
-                <Space h="md" />
-              </Container>
+          <Paper shadow="xs" p="xl">
+            {!loading ? (
+              !data ? (
+                <>
+                  Select an audio file by clicking the upload button below. Only
+                  mp3 and wav files are supported.
+                  <Space h="md" />
+                  <Group justify="center">
+                    <FileButton onChange={setFile} accept="audio/mp3,audio/wav">
+                      {(props) => (
+                        <Button {...props}>
+                          {file ? file.name : "Upload audio"}
+                        </Button>
+                      )}
+                    </FileButton>
+                  </Group>
+                  <Space h="md" />
+                </>
+              ) : (
+                <>
+                  <h3>Transcript</h3>
+                  {data?.text}
+                </>
+              )
             ) : (
-              <>Transcript: {data?.text}</>
-            )
-          ) : (
-            <Loader color="blue" />
-          )}
+              <Loader color="blue" />
+            )}
+          </Paper>
         </AppShell.Main>
       </AppShell>
     </MantineProvider>
