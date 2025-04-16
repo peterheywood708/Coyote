@@ -164,6 +164,7 @@ function App() {
                     wrap="wrap"
                   >
                     <Button color="ocean-blue">Back</Button>
+                    <Button color="ocean-blue">View transcriptions</Button>
                     <Button
                       color="ocean-blue"
                       disabled={transcriptSaved}
