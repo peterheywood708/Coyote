@@ -47,15 +47,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv = __importStar(require("dotenv"));
-const cors = require('cors');
+const mongodb_1 = require("mongodb");
+const cors = require("cors");
 const app = (0, express_1.default)();
 app.use(cors());
 app.use(express_1.default.json());
 dotenv.config();
 const port = process.env.PORT || "3001";
-app.post('/store', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
-    res.send({ "message": "success" });
+const client = new mongodb_1.MongoClient(process.env.URI || "");
+app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        yield client.connect();
+        const db = client.db("coyote");
+        const col = db.collection("transcripts");
+        const transcriptDocument = {
+            text: (_a = req.body) === null || _a === void 0 ? void 0 : _a.text,
+            userId: 123456,
+        };
+        const p = yield col.insertOne(transcriptDocument);
+        res.send(p);
+    }
+    catch (err) {
+        console.log(err);
+        res.status(400).send(err);
+    }
+    finally {
+        yield client.close();
+    }
 }));
 app.listen(port, () => {
     console.log(`Database API running on port ${port}`);

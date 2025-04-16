@@ -11,11 +11,13 @@ import {
   Text,
   Flex,
   createTheme,
+  NavLink,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import "./App.css";
 import "@mantine/core/styles.css";
+import { FaCircleCheck, FaRegFileAudio, FaTableList } from "react-icons/fa6";
 
 const theme = createTheme({
   colors: {
@@ -38,11 +40,17 @@ interface IData {
   text: string;
 }
 
+interface IResponse {
+  acknowledged: boolean;
+  insertedId: string;
+}
+
 function App() {
   const [opened, { toggle }] = useDisclosure();
   const [file, setFile] = useState<File | null>(null);
   const [data, setData] = useState<IData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [transcriptSaved, setTranscriptSaved] = useState<boolean>(false);
 
   const SendTranscript = async () => {
     setLoading(true);
@@ -56,8 +64,10 @@ function App() {
         body: JSON.stringify(data),
       }
     );
-    const body = await transcriptResponse.json();
-    console.log(body);
+    const response: IResponse = await transcriptResponse.json();
+    if (response?.acknowledged) {
+      setTranscriptSaved(true);
+    }
     setLoading(false);
   };
 
@@ -75,7 +85,6 @@ function App() {
           }
         );
         const body: IData = await response.json();
-        console.log(body);
         setData(body);
         setLoading(false);
       }
@@ -106,7 +115,19 @@ function App() {
           </Group>
         </AppShell.Header>
 
-        <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
+        <AppShell.Navbar p="md">
+          {" "}
+          <NavLink
+            href="#required-for-focus"
+            label="Transcribe audio"
+            leftSection={<FaRegFileAudio />}
+          />
+          <NavLink
+            href="#required-for-focus"
+            label="View transcriptions"
+            leftSection={<FaTableList />}
+          />
+        </AppShell.Navbar>
 
         <AppShell.Main>
           <Paper shadow="xs" p="xl">
@@ -143,8 +164,19 @@ function App() {
                     wrap="wrap"
                   >
                     <Button color="ocean-blue">Back</Button>
-                    <Button color="ocean-blue" onClick={() => SendTranscript()}>
-                      Save
+                    <Button
+                      color="ocean-blue"
+                      disabled={transcriptSaved}
+                      onClick={() => SendTranscript()}
+                    >
+                      {transcriptSaved ? (
+                        <>
+                          <FaCircleCheck />
+                          &nbsp;Transcript saved
+                        </>
+                      ) : (
+                        "Save"
+                      )}
                     </Button>
                   </Flex>
                 </>
