@@ -87,7 +87,7 @@ function App() {
               hiddenFrom="sm"
               size="sm"
             />
-            <img src="logo.png" alt="Click here to return home" />
+            <img src="logo.png" alt="Click here to return home" height="32" />
           </Group>
         </AppShell.Header>
 
