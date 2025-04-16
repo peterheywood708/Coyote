@@ -11,7 +11,7 @@ import { useState, useEffect } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import "./App.css";
 import "@mantine/core/styles.css";
-import { MantineProvider, Loader } from "@mantine/core";
+import { MantineProvider, Loader, Text, Flex } from "@mantine/core";
 
 function App() {
   const [opened, { toggle }] = useDisclosure();
@@ -53,8 +53,15 @@ function App() {
         padding="md"
       >
         <AppShell.Header>
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <div>Coyote</div>
+          <Group h="100%" px="md">
+            <Burger
+              opened={opened}
+              onClick={toggle}
+              hiddenFrom="sm"
+              size="sm"
+            />
+            <Text size="lg">Coyote</Text>
+          </Group>
         </AppShell.Header>
 
         <AppShell.Navbar p="md">Navbar</AppShell.Navbar>
@@ -80,8 +87,22 @@ function App() {
                 </>
               ) : (
                 <>
-                  <h3>Transcript</h3>
-                  {data?.text}
+                  <Text size="xl" ta="left">
+                    Transcription
+                  </Text>
+                  <Space h="md" />
+                  <Text ta="left">{data?.text}</Text>
+                  <Space h="md" />
+                  <Flex
+                    gap="md"
+                    justify="flex-start"
+                    align="flex-start"
+                    direction="row"
+                    wrap="wrap"
+                  >
+                    <Button>Back</Button>
+                    <Button>Save</Button>
+                  </Flex>
                 </>
               )
             ) : (
