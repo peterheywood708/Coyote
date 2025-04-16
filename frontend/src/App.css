@@ -18,6 +18,10 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
+.mantine-AppShell-header{
+  background-color: rgb(252,242,232) !important;
+}
+
 @keyframes logo-spin {
   from {
     transform: rotate(0deg);

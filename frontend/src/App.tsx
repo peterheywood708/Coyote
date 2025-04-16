@@ -11,12 +11,39 @@ import { useState, useEffect } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import "./App.css";
 import "@mantine/core/styles.css";
-import { MantineProvider, Loader, Text, Flex } from "@mantine/core";
+import {
+  MantineProvider,
+  Loader,
+  Text,
+  Flex,
+  createTheme,
+} from "@mantine/core";
+
+const theme = createTheme({
+  colors: {
+    "ocean-blue": [
+      "#7AD1DD",
+      "#5FCCDB",
+      "#44CADC",
+      "#2AC9DE",
+      "#1AC2D9",
+      "#11B7CD",
+      "#09ADC3",
+      "#0E99AC",
+      "#128797",
+      "#147885",
+    ],
+  },
+});
+
+interface IData {
+  text: string;
+}
 
 function App() {
   const [opened, { toggle }] = useDisclosure();
   const [file, setFile] = useState<File | null>(null);
-  const [data, setData] = useState<Object | null>(null);
+  const [data, setData] = useState<IData | null>(null);
   const [loading, setLoading] = useState<Boolean>(false);
 
   useEffect(() => {
@@ -32,7 +59,7 @@ function App() {
             body: formData,
           }
         );
-        const body: Response = await response.json();
+        const body: IData = await response.json();
         console.log(body);
         setData(body);
         setLoading(false);
@@ -42,7 +69,7 @@ function App() {
   }, [file]);
 
   return (
-    <MantineProvider>
+    <MantineProvider theme={theme}>
       <AppShell
         header={{ height: 60 }}
         navbar={{
@@ -60,7 +87,7 @@ function App() {
               hiddenFrom="sm"
               size="sm"
             />
-            <Text size="lg">Coyote</Text>
+            <img src="logo.png" alt="Click here to return home" />
           </Group>
         </AppShell.Header>
 
@@ -77,7 +104,7 @@ function App() {
                   <Group justify="center">
                     <FileButton onChange={setFile} accept="audio/mp3,audio/wav">
                       {(props) => (
-                        <Button {...props}>
+                        <Button color="ocean-blue" {...props}>
                           {file ? file.name : "Upload audio"}
                         </Button>
                       )}
@@ -100,8 +127,8 @@ function App() {
                     direction="row"
                     wrap="wrap"
                   >
-                    <Button>Back</Button>
-                    <Button>Save</Button>
+                    <Button color="ocean-blue">Back</Button>
+                    <Button color="ocean-blue">Save</Button>
                   </Flex>
                 </>
               )
