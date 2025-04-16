@@ -44,15 +44,15 @@ function App() {
   const [opened, { toggle }] = useDisclosure();
   const [file, setFile] = useState<File | null>(null);
   const [data, setData] = useState<IData | null>(null);
-  const [loading, setLoading] = useState<Boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const GetData = async () => {
       if (file) {
         setLoading(true);
-        let formData: FormData = new FormData();
+        const formData: FormData = new FormData();
         formData.append("file", file);
-        let response: Response = await fetch(
+        const response: Response = await fetch(
           "http://localhost:3000/transcribe",
           {
             method: "POST",

@@ -1,5 +1,5 @@
 import fs, { unlinkSync } from "fs";
-import OpenAI from "openai/index.mjs";
+import OpenAI from "openai";
 import express, { Request, Response} from 'express';
 import * as dotenv from 'dotenv'
 import multer from "multer";
