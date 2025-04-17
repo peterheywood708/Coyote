@@ -76,6 +76,20 @@ app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         yield client.close();
     }
 }));
+app.get('/list', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield client.connect();
+        const db = client.db("coyote");
+        const documents = yield db.collection("transcripts").find().toArray();
+        res.send(documents);
+    }
+    catch (err) {
+        res.status(400).send(err);
+    }
+    finally {
+        yield client.close();
+    }
+}));
 app.listen(port, () => {
     console.log(`Database API running on port ${port}`);
 });
