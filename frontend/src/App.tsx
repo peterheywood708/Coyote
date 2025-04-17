@@ -60,12 +60,12 @@ function App() {
         <AppShell.Navbar p="md">
           {" "}
           <NavLink
-            href="#required-for-focus"
+            href="/"
             label="Transcribe audio"
             leftSection={<FaRegFileAudio />}
           />
           <NavLink
-            href="#required-for-focus"
+            href="/transcriptions"
             label="View transcriptions"
             leftSection={<FaTableList />}
           />

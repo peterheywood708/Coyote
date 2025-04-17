@@ -16,6 +16,14 @@ const openai: OpenAI = new OpenAI({
 
 const port: string = process.env.PORT || "3000";
 
+try{
+  if(!fs.existsSync('inbox')){
+    fs.mkdirSync('inbox');
+  }
+} catch(err) {
+  console.error(err);
+}
+
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
       callback(null, './inbox');

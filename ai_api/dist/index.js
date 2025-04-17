@@ -58,6 +58,14 @@ const openai = new openai_1.default({
     apiKey: process.env.APIKEY,
 });
 const port = process.env.PORT || "3000";
+try {
+    if (!fs_1.default.existsSync('inbox')) {
+        fs_1.default.mkdirSync('inbox');
+    }
+}
+catch (err) {
+    console.error(err);
+}
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, callback) {
         callback(null, './inbox');
