@@ -5,6 +5,7 @@ import {
   MantineProvider,
   createTheme,
   NavLink,
+  Button,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import "./App.css";
@@ -46,7 +47,7 @@ function App() {
         padding="md"
       >
         <AppShell.Header>
-          <Group h="100%" px="md">
+          <Group h="100%" px="md" justify="space-between">
             <Burger
               opened={opened}
               onClick={toggle}
@@ -54,6 +55,14 @@ function App() {
               size="sm"
             />
             <img src="logo.png" alt="Click here to return home" height="32" />
+            <Group h="100%" px="md">
+              <Button variant="filled" color="ocean-blue">
+                Sign in
+              </Button>
+              <Button variant="outline" color="ocean-blue">
+                Sign up
+              </Button>
+            </Group>
           </Group>
         </AppShell.Header>
 

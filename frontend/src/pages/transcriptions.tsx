@@ -1,4 +1,11 @@
-import { Text, Space, Alert, Loader, Accordion } from "@mantine/core";
+import {
+  Text,
+  Space,
+  Alert,
+  Loader,
+  Accordion,
+  Container,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import { FaCircleInfo } from "react-icons/fa6";
 
@@ -35,7 +42,7 @@ const Transcriptions = () => {
   }, [transcripts, setTranscripts]);
 
   return (
-    <>
+    <Container fluid>
       <Text size="xl">Transcriptions</Text>
       <Space h="md"></Space>
       {loading ? (
@@ -70,7 +77,7 @@ const Transcriptions = () => {
           ) : null}
         </>
       )}
-    </>
+    </Container>
   );
 };
 
