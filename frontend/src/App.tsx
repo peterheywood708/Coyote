@@ -14,6 +14,7 @@ import { FaRegFileAudio, FaTableList } from "react-icons/fa6";
 import { BrowserRouter, Routes, Route } from "react-router";
 import Transcribe from "./pages/transcribe";
 import Transcriptions from "./pages/transcriptions";
+import { useAuth } from "react-oidc-context";
 
 const theme = createTheme({
   colors: {
@@ -33,7 +34,17 @@ const theme = createTheme({
 });
 
 function App() {
+  const auth = useAuth();
   const [opened, { toggle }] = useDisclosure();
+
+  const signOutRedirect = () => {
+    const clientId = import.meta.env.VITE_AWS_CLIENTID;
+    const logoutUri = "/";
+    const cognitoDomain = import.meta.env.VITE_AWS_COGNITODOMAIN;
+    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(
+      logoutUri
+    )}`;
+  };
 
   return (
     <MantineProvider theme={theme}>
@@ -56,7 +67,11 @@ function App() {
             />
             <img src="logo.png" alt="Click here to return home" height="32" />
             <Group h="100%" px="md">
-              <Button variant="filled" color="ocean-blue">
+              <Button
+                variant="filled"
+                color="ocean-blue"
+                onClick={() => auth.signinRedirect()}
+              >
                 Sign in
               </Button>
               <Button variant="outline" color="ocean-blue">
@@ -81,6 +96,24 @@ function App() {
         </AppShell.Navbar>
 
         <AppShell.Main>
+          {auth.isAuthenticated ? (
+            <>
+              <pre> Hello: {auth.user?.profile.email} </pre>
+              <pre> ID Token: {auth.user?.id_token} </pre>
+              <pre> Access Token: {auth.user?.access_token} </pre>
+              <pre> Refresh Token: {auth.user?.refresh_token} </pre>
+
+              <Button
+                variant="outline"
+                color="ocean-blue"
+                onClick={() => auth.removeUser()}
+              >
+                Sign out
+              </Button>
+            </>
+          ) : (
+            <>Not logged in</>
+          )}
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Transcribe />}></Route>
