@@ -8,11 +8,13 @@ import {
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { FaCircleInfo } from "react-icons/fa6";
+import { useAuth } from "react-oidc-context";
 
 const Transcriptions = () => {
   const [transcripts, setTranscripts] = useState<Object[] | null>();
   const [fetchError, setFetchError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const auth = useAuth();
 
   useEffect(() => {
     const getDocuments = async () => {
@@ -24,6 +26,7 @@ const Transcriptions = () => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
+              Authorization: auth.user?.access_token || "",
             },
           }
         );
@@ -36,7 +39,7 @@ const Transcriptions = () => {
         setLoading(false);
       }
     };
-    if (!transcripts) {
+    if (!transcripts && auth.user?.access_token) {
       getDocuments();
     }
   }, [transcripts, setTranscripts]);
@@ -55,14 +58,15 @@ const Transcriptions = () => {
           </Text>
           <Space h="md"></Space>
           <Accordion>
-            {transcripts?.map((i: any) => {
-              return (
-                <Accordion.Item key={i?._id} value={i?._id}>
-                  <Accordion.Control>{i?._id}</Accordion.Control>
-                  <Accordion.Panel ta="left">{i?.text}</Accordion.Panel>
-                </Accordion.Item>
-              );
-            })}
+            {transcripts?.map &&
+              transcripts?.map((i: any) => {
+                return (
+                  <Accordion.Item key={i?._id} value={i?._id}>
+                    <Accordion.Control>{i?._id}</Accordion.Control>
+                    <Accordion.Panel ta="left">{i?.text}</Accordion.Panel>
+                  </Accordion.Item>
+                );
+              })}
           </Accordion>
           {fetchError ? (
             <Alert

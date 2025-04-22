@@ -11,7 +11,7 @@ import {
   Paper,
 } from "@mantine/core";
 import { FaCircleCheck, FaCircleInfo } from "react-icons/fa6";
-import { useNavigate } from "react-router";
+import { useAuth } from "react-oidc-context";
 
 interface IData {
   text: string;
@@ -23,13 +23,13 @@ interface IResponse {
 }
 
 const Transcribe = () => {
-  let navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
   const [data, setData] = useState<IData | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [transcriptSaved, setTranscriptSaved] = useState<boolean>(false);
   const [transcribeError, setTranscribeError] = useState<boolean>(false);
   const [storeError, setStoreError] = useState<boolean>(false);
+  const auth = useAuth();
 
   const SendTranscript = async () => {
     setLoading(true);
@@ -41,13 +41,21 @@ const Transcribe = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: auth?.user?.access_token || "",
           },
-          body: JSON.stringify(data),
+          body: JSON.stringify({
+            text: data?.text,
+            userId: auth?.user?.profile?.sub,
+          }),
         }
       );
-      const response: IResponse = await transcriptResponse.json();
-      if (response?.acknowledged) {
-        setTranscriptSaved(true);
+      if (transcriptResponse?.status != 200) {
+        setStoreError(true);
+      } else {
+        const response: IResponse = await transcriptResponse.json();
+        if (response?.acknowledged) {
+          setTranscriptSaved(true);
+        }
       }
     } catch (err) {
       console.warn(err);
@@ -70,10 +78,19 @@ const Transcribe = () => {
             {
               method: "POST",
               body: formData,
+              headers: {
+                Authorization: auth?.user?.access_token || "",
+              },
             }
           );
-          const body: IData = await response.json();
-          setData(body);
+
+          if (response?.status != 200) {
+            setTranscribeError(true);
+            setLoading(false);
+          } else {
+            const body: IData = await response.json();
+            setData(body);
+          }
           setLoading(false);
         } catch (err) {
           setTranscribeError(true);
@@ -82,12 +99,15 @@ const Transcribe = () => {
         }
       }
     };
-    GetData();
+    if (auth?.user?.access_token) {
+      GetData();
+    }
   }, [file]);
 
   return (
     <>
       <Text size="xl">Transcribe audio</Text>
+
       <Space h="md" />
       {!loading ? (
         !data ? (
@@ -153,14 +173,6 @@ const Transcribe = () => {
               wrap="wrap"
             >
               <Button color="ocean-blue">Back</Button>
-              <Button
-                color="ocean-blue"
-                onClick={() => {
-                  navigate("/transcriptions");
-                }}
-              >
-                View transcriptions
-              </Button>
               <Button
                 color="ocean-blue"
                 disabled={transcriptSaved}

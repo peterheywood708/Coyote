@@ -47,47 +47,76 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv = __importStar(require("dotenv"));
+const aws_jwt_verify_1 = require("aws-jwt-verify");
 const mongodb_1 = require("mongodb");
 const cors = require("cors");
 const app = (0, express_1.default)();
 app.use(cors());
 app.use(express_1.default.json());
 dotenv.config();
+// Verifier that expects valid access tokens:
+const verifier = aws_jwt_verify_1.CognitoJwtVerifier.create({
+    userPoolId: `${process.env.COGNITO_USERPOOLID}`,
+    tokenUse: "access",
+    clientId: `${process.env.COGNITO_CLIENTID}`,
+});
 const port = process.env.PORT || "3001";
 const client = new mongodb_1.MongoClient(process.env.URI || "");
 app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     try {
-        yield client.connect();
-        const db = client.db("coyote");
-        const col = db.collection("transcripts");
-        const transcriptDocument = {
-            text: (_a = req.body) === null || _a === void 0 ? void 0 : _a.text,
-            userId: 123456,
-        };
-        const p = yield col.insertOne(transcriptDocument);
-        res.send(p);
+        const token = req.header("authorization") || "";
+        const payload = yield verifier.verify(token);
+        if (payload) {
+            try {
+                yield client.connect();
+                const db = client.db("coyote");
+                const col = db.collection("transcripts");
+                const transcriptDocument = {
+                    text: (_a = req.body) === null || _a === void 0 ? void 0 : _a.text,
+                    userId: (_b = req.body) === null || _b === void 0 ? void 0 : _b.userId,
+                    date: Date.now(),
+                };
+                const p = yield col.insertOne(transcriptDocument);
+                res.send(p);
+            }
+            catch (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            finally {
+                yield client.close();
+            }
+        }
     }
     catch (err) {
-        console.log(err);
-        res.status(400).send(err);
-    }
-    finally {
-        yield client.close();
+        console.warn(err);
+        res.status(401).send(err);
     }
 }));
-app.get('/list', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get("/list", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield client.connect();
-        const db = client.db("coyote");
-        const documents = yield db.collection("transcripts").find().toArray();
-        res.send(documents);
+        const token = req.header("authorization") || "";
+        const payload = yield verifier.verify(token);
+        if (payload) {
+            try {
+                yield client.connect();
+                const db = client.db("coyote");
+                const documents = yield db.collection("transcripts").find().toArray();
+                res.send(documents);
+            }
+            catch (err) {
+                console.warn(err);
+                res.status(400).send(err);
+            }
+            finally {
+                yield client.close();
+            }
+        }
     }
     catch (err) {
-        res.status(400).send(err);
-    }
-    finally {
-        yield client.close();
+        console.warn(err);
+        res.status(401).send(err);
     }
 }));
 app.listen(port, () => {

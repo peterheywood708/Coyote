@@ -50,17 +50,24 @@ const openai_1 = __importDefault(require("openai"));
 const express_1 = __importDefault(require("express"));
 const dotenv = __importStar(require("dotenv"));
 const multer_1 = __importDefault(require("multer"));
-const cors = require('cors');
+const aws_jwt_verify_1 = require("aws-jwt-verify");
+const cors = require("cors");
 const app = (0, express_1.default)();
 app.use(cors());
 dotenv.config();
+// Verifier that expects valid access tokens:
+const verifier = aws_jwt_verify_1.CognitoJwtVerifier.create({
+    userPoolId: `${process.env.COGNITO_USERPOOLID}`,
+    tokenUse: "access",
+    clientId: `${process.env.COGNITO_CLIENTID}`,
+});
 const openai = new openai_1.default({
     apiKey: process.env.APIKEY,
 });
 const port = process.env.PORT || "3000";
 try {
-    if (!fs_1.default.existsSync('inbox')) {
-        fs_1.default.mkdirSync('inbox');
+    if (!fs_1.default.existsSync("inbox")) {
+        fs_1.default.mkdirSync("inbox");
     }
 }
 catch (err) {
@@ -68,32 +75,43 @@ catch (err) {
 }
 const storage = multer_1.default.diskStorage({
     destination: function (req, file, callback) {
-        callback(null, './inbox');
+        callback(null, "./inbox");
     },
     filename: function (req, file, callback) {
         callback(null, `${Date.now()}_${file.originalname}`);
-    }
+    },
 });
 const upload = (0, multer_1.default)({ storage: storage });
-app.post('/transcribe', upload.single('file'), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post("/transcribe", upload.single("file"), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.file) {
-        res.status(400).send('No file uploaded');
+        res.status(400).send("No file uploaded");
     }
     else {
         console.log(`File uploaded - ${req.file.path}`);
         try {
-            const transcription = yield openai.audio.transcriptions.create({
-                file: fs_1.default.createReadStream(req.file.path),
-                model: "whisper-1",
-                language: "en",
-            });
-            res.send(transcription);
+            const token = req.header("authorization") || "";
+            const payload = yield verifier.verify(token);
+            if (payload) {
+                try {
+                    const transcription = yield openai.audio.transcriptions.create({
+                        file: fs_1.default.createReadStream(req.file.path),
+                        model: "whisper-1",
+                        language: "en",
+                    });
+                    res.send(transcription);
+                }
+                catch (err) {
+                    console.warn(err);
+                    res.status(400).send(err);
+                }
+                finally {
+                    yield (0, fs_1.unlinkSync)(req.file.path);
+                }
+            }
         }
-        catch (error) {
-            res.send(error);
-        }
-        finally {
-            yield (0, fs_1.unlinkSync)(req.file.path);
+        catch (err) {
+            console.warn(err);
+            res.status(401).send(err);
         }
     }
 }));

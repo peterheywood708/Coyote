@@ -101,9 +101,6 @@ function App() {
               />
             </AppShell.Navbar>
             <AppShell.Main>
-              {/* <pre> ID Token: {auth.user?.id_token} </pre>
-              <pre> Access Token: {auth.user?.access_token} </pre>
-              <pre> Refresh Token: {auth.user?.refresh_token} </pre> */}
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Transcribe />}></Route>
