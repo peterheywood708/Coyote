@@ -56,7 +56,10 @@ app.get("/list", async (req: Request, res: Response) => {
       try {
         await client.connect();
         const db: Db = client.db("coyote");
-        const documents = await db.collection("transcripts").find().toArray();
+        const documents = await db
+          .collection("transcripts")
+          .find({ userId: payload?.sub })
+          .toArray();
         res.send(documents);
       } catch (err) {
         console.warn(err);

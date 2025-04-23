@@ -102,7 +102,10 @@ app.get("/list", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             try {
                 yield client.connect();
                 const db = client.db("coyote");
-                const documents = yield db.collection("transcripts").find().toArray();
+                const documents = yield db
+                    .collection("transcripts")
+                    .find({ userId: payload === null || payload === void 0 ? void 0 : payload.sub })
+                    .toArray();
                 res.send(documents);
             }
             catch (err) {
