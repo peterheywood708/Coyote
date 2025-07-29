@@ -1,8 +1,6 @@
 import AWS, { S3 } from "aws-sdk";
-import fs, { unlinkSync } from "fs";
 import express, { Request, Response } from "express";
 import * as dotenv from "dotenv";
-import multer from "multer";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 const cors = require("cors");
@@ -21,19 +19,31 @@ interface IData {
 }
 
 app.post("/upload", async (req: Request, res: Response) => {
-  const params = {
-    Bucket: process.env.S3_BUCKETNAME,
-    Key: "cat.jpg",
-    Body: fileContent,
-  };
+  if (req?.headers?.filename) {
+    const params = {
+      Bucket: process.env.S3_BUCKETNAME || "",
+      Key: `${req?.headers?.filename}`,
+      Body: req,
+    };
 
-  // Uploading files to the bucket
-  s3.upload(params, function (err: Error, data: IData) {
-    if (err) {
-      throw err;
-    }
-    console.log(`File uploaded successfully. ${data.Location}`);
-  });
+    console.log(req?.headers?.filename || "");
+
+    // Uploading files to the bucket
+    s3.upload(params, function (err: Error, data: IData) {
+      if (err) {
+        res.status(400).send(err);
+        console.warn(err);
+      }
+      res.send("File uploaded successfully");
+      console.log(
+        `${req?.headers?.filename} uploaded successfully to ${data.Location}`
+      );
+    });
+  } else {
+    res
+      .status(400)
+      .send("Please set the filename header before uploading the file");
+  }
 });
 
 app.listen(port, () => {
