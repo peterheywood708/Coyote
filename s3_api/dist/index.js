@@ -73,7 +73,7 @@ app.post("/upload", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 res.status(400).send(err);
                 console.warn(err);
             }
-            res.send("File uploaded successfully");
+            res.send(data.Location);
             console.log(`${(_a = req === null || req === void 0 ? void 0 : req.headers) === null || _a === void 0 ? void 0 : _a.filename} uploaded successfully to ${data.Location}`);
         });
     }

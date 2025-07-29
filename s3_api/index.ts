@@ -34,7 +34,7 @@ app.post("/upload", async (req: Request, res: Response) => {
         res.status(400).send(err);
         console.warn(err);
       }
-      res.send("File uploaded successfully");
+      res.send(data.Location);
       console.log(
         `${req?.headers?.filename} uploaded successfully to ${data.Location}`
       );

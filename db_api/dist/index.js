@@ -63,7 +63,7 @@ const verifier = aws_jwt_verify_1.CognitoJwtVerifier.create({
 const port = process.env.PORT || "3001";
 const client = new mongodb_1.MongoClient(process.env.URI || "");
 app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a, _b, _c, _d;
     try {
         const token = req.header("authorization") || "";
         const payload = yield verifier.verify(token);
@@ -71,10 +71,13 @@ app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             try {
                 yield client.connect();
                 const db = client.db("coyote");
-                const col = db.collection("transcripts");
+                const col = db.collection("jobs");
                 const transcriptDocument = {
-                    text: (_a = req.body) === null || _a === void 0 ? void 0 : _a.text,
-                    userId: (_b = req.body) === null || _b === void 0 ? void 0 : _b.userId,
+                    file: (_a = req.body) === null || _a === void 0 ? void 0 : _a.file,
+                    fileName: (_b = req.body) === null || _b === void 0 ? void 0 : _b.fileName,
+                    status: (_c = req.body) === null || _c === void 0 ? void 0 : _c.status,
+                    sqsId: null,
+                    userId: (_d = req.body) === null || _d === void 0 ? void 0 : _d.userId,
                     date: Date.now(),
                 };
                 const p = yield col.insertOne(transcriptDocument);
@@ -103,7 +106,7 @@ app.get("/list", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 yield client.connect();
                 const db = client.db("coyote");
                 const documents = yield db
-                    .collection("transcripts")
+                    .collection("jobs")
                     .find({ userId: payload === null || payload === void 0 ? void 0 : payload.sub })
                     .toArray();
                 res.send(documents);

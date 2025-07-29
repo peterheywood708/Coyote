@@ -12,7 +12,7 @@ import "./App.css";
 import "@mantine/core/styles.css";
 import { FaRegFileAudio, FaTableList } from "react-icons/fa6";
 import { BrowserRouter, Routes, Route } from "react-router";
-import Transcribe from "./pages/transcribe";
+import Upload from "./pages/upload";
 import Transcriptions from "./pages/transcriptions";
 import { useAuth } from "react-oidc-context";
 
@@ -91,7 +91,7 @@ function App() {
             <AppShell.Navbar p="md">
               <NavLink
                 href="/"
-                label="Transcribe audio"
+                label="Upload audio"
                 leftSection={<FaRegFileAudio />}
               />
               <NavLink
@@ -103,7 +103,7 @@ function App() {
             <AppShell.Main>
               <BrowserRouter>
                 <Routes>
-                  <Route path="/" element={<Transcribe />}></Route>
+                  <Route path="/" element={<Upload />}></Route>
                   <Route
                     path="/transcriptions"
                     element={<Transcriptions />}

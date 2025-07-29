@@ -11,7 +11,7 @@ import { FaCircleInfo } from "react-icons/fa6";
 import { useAuth } from "react-oidc-context";
 
 const Transcriptions = () => {
-  const [transcripts, setTranscripts] = useState<Object[] | null>();
+  const [transcripts, setTranscripts] = useState<object[] | null>();
   const [fetchError, setFetchError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const auth = useAuth();
@@ -62,8 +62,10 @@ const Transcriptions = () => {
               transcripts?.map((i: any) => {
                 return (
                   <Accordion.Item key={i?._id} value={i?._id}>
-                    <Accordion.Control>{i?._id}</Accordion.Control>
-                    <Accordion.Panel ta="left">{i?.text}</Accordion.Panel>
+                    <Accordion.Control>{i?.fileName}</Accordion.Control>
+                    <Accordion.Panel ta="left">
+                      Status: {i?.status}
+                    </Accordion.Panel>
                   </Accordion.Item>
                 );
               })}

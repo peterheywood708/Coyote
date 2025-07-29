@@ -27,9 +27,12 @@ app.post("/store", async (req: Request, res: Response) => {
       try {
         await client.connect();
         const db: Db = client.db("coyote");
-        const col: Collection = db.collection("transcripts");
+        const col: Collection = db.collection("jobs");
         const transcriptDocument: Object = {
-          text: req.body?.text,
+          file: req.body?.file,
+          fileName: req.body?.fileName,
+          status: req.body?.status,
+          sqsId: null,
           userId: req.body?.userId,
           date: Date.now(),
         };
@@ -57,7 +60,7 @@ app.get("/list", async (req: Request, res: Response) => {
         await client.connect();
         const db: Db = client.db("coyote");
         const documents = await db
-          .collection("transcripts")
+          .collection("jobs")
           .find({ userId: payload?.sub })
           .toArray();
         res.send(documents);
