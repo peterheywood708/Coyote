@@ -44,6 +44,8 @@ app.post("/store", async (req: Request, res: Response) => {
       } finally {
         await client.close();
       }
+    } else {
+      res.status(400).send("No authorisation token provided");
     }
   } catch (err) {
     console.warn(err);

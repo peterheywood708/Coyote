@@ -91,6 +91,9 @@ app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 yield client.close();
             }
         }
+        else {
+            res.status(400).send("No authorisation token provided");
+        }
     }
     catch (err) {
         console.warn(err);
