@@ -23,19 +23,26 @@ const verifier = CognitoJwtVerifier.create({
 
 const port: string = process.env.PORT || "3003";
 
+interface IBody {
+  key: string;
+  userId: string;
+  jobId: string;
+}
+
 app.get("/", (Request: Request, Response: Response) => {
   Response.send("Welcome to the SQS API");
 });
 
 app.post("/new", async (Request: Request, Response: Response) => {
-  if (Request.body?.file && Request.body?.userId && Request.body?.jobId) {
+  if (Request.body?.key && Request.body?.userId && Request.body?.jobId) {
+    const messageBody: IBody = {
+      key: Request.body?.key,
+      userId: Request.body?.userId,
+      jobId: Request.body?.jobId,
+    };
     const params = {
       QueueUrl: process.env.AWS_QUEUE_URL || "",
-      MessageBody: JSON.stringify({
-        file: Request.body?.file,
-        userId: Request.body?.userId,
-        jobId: Request.body?.jobId,
-      }),
+      MessageBody: JSON.stringify(messageBody),
     };
     try {
       const data = await sqs.sendMessage(params).promise();
@@ -44,15 +51,17 @@ app.post("/new", async (Request: Request, Response: Response) => {
       Response.status(400).send(err);
     }
   } else {
-    Response.status(400).send("Body must include file, userId and jobId");
+    Response.status(400).send("Body must include key, userId and jobId");
   }
 });
 
 app.get("/receive", async (Request: Request, Response: Response) => {
+  // The below prevents caching so that messages from SQS are not recieved more than once
+  Response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
   const params = {
     QueueUrl: process.env.AWS_QUEUE_URL || "",
     MaxNumberOfMessages: 1,
-    VisibilityTimeout: 20,
+    VisibilityTimeout: 3600,
     WaitTimeSeconds: 0,
   };
   try {

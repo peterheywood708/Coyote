@@ -70,14 +70,15 @@ app.get("/", (Request, Response) => {
 });
 app.post("/new", (Request, Response) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f;
-    if (((_a = Request.body) === null || _a === void 0 ? void 0 : _a.file) && ((_b = Request.body) === null || _b === void 0 ? void 0 : _b.userId) && ((_c = Request.body) === null || _c === void 0 ? void 0 : _c.jobId)) {
+    if (((_a = Request.body) === null || _a === void 0 ? void 0 : _a.key) && ((_b = Request.body) === null || _b === void 0 ? void 0 : _b.userId) && ((_c = Request.body) === null || _c === void 0 ? void 0 : _c.jobId)) {
+        const messageBody = {
+            key: (_d = Request.body) === null || _d === void 0 ? void 0 : _d.key,
+            userId: (_e = Request.body) === null || _e === void 0 ? void 0 : _e.userId,
+            jobId: (_f = Request.body) === null || _f === void 0 ? void 0 : _f.jobId,
+        };
         const params = {
             QueueUrl: process.env.AWS_QUEUE_URL || "",
-            MessageBody: JSON.stringify({
-                file: (_d = Request.body) === null || _d === void 0 ? void 0 : _d.file,
-                userId: (_e = Request.body) === null || _e === void 0 ? void 0 : _e.userId,
-                jobId: (_f = Request.body) === null || _f === void 0 ? void 0 : _f.jobId,
-            }),
+            MessageBody: JSON.stringify(messageBody),
         };
         try {
             const data = yield sqs.sendMessage(params).promise();
@@ -88,14 +89,16 @@ app.post("/new", (Request, Response) => __awaiter(void 0, void 0, void 0, functi
         }
     }
     else {
-        Response.status(400).send("Body must include file, userId and jobId");
+        Response.status(400).send("Body must include key, userId and jobId");
     }
 }));
 app.get("/receive", (Request, Response) => __awaiter(void 0, void 0, void 0, function* () {
+    // The below prevents caching so that messages from SQS are not recieved more than once
+    Response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     const params = {
         QueueUrl: process.env.AWS_QUEUE_URL || "",
         MaxNumberOfMessages: 1,
-        VisibilityTimeout: 20,
+        VisibilityTimeout: 3600,
         WaitTimeSeconds: 0,
     };
     try {

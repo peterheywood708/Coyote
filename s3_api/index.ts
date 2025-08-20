@@ -19,6 +19,8 @@ const port: string = process.env.PORT || "3002";
 const s3: S3 = new AWS.S3({
   accessKeyId: process.env.S3_ACCESSKEY,
   secretAccessKey: process.env.S3_SECRET,
+  signatureVersion: "v4",
+  region: process.env.AWS_REGION,
 });
 
 interface IData {
@@ -43,7 +45,7 @@ app.post("/upload", async (req: Request, res: Response) => {
             res.status(400).send(err);
             console.warn(err);
           }
-          res.send(data.Location);
+          res.send(req?.headers?.filename);
           console.log(
             `${req?.headers?.filename} uploaded successfully to ${data.Location}`
           );
@@ -58,6 +60,29 @@ app.post("/upload", async (req: Request, res: Response) => {
     }
   } catch (err) {
     res.status(401).send(err);
+  }
+});
+
+app.get("/retrieve", async (req: Request, res: Response) => {
+  const key: string = req.header("key") || "";
+  if (key) {
+    const params = {
+      Bucket: process.env.S3_BUCKETNAME || "",
+      Key: key,
+    };
+    try {
+      const signedUrlExpireSeconds = 10;
+      const url = await s3.getSignedUrl("getObject", {
+        Bucket: params.Bucket,
+        Key: params.Key,
+        Expires: signedUrlExpireSeconds,
+      });
+      res.send(url);
+    } catch (err) {
+      res.status(400).send(err);
+    }
+  } else {
+    res.status(400).send("No key provided");
   }
 });
 
