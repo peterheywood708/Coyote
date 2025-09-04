@@ -16,6 +16,14 @@ load_dotenv()
 workFolder = 'work'
 inFolder = 'in'
 
+# Our class for diarization and transcriptions
+class Diarization:
+    def __init__(self, speaker, text, start, end):
+        self.speaker = speaker
+        self.text = text
+        self.start = start
+        self.end = end
+
 # Make our directories if they don't already exist
 if not os.path.exists(workFolder):
     os.makedirs(workFolder)
@@ -35,6 +43,7 @@ file = 'in\\1755643752826_2013-5-documentary-1-historical-alex-warner.mp3'
 
 # Function to start diarization once file is downloaded from s3
 def startDiarization(file):
+    diarizationTranscriptions = []
     diarization = pipeline(file)
     for turn, _,speaker in diarization.itertracks(yield_label=True):
         # Use Pydub to split the audio from speaker start and end
@@ -51,12 +60,14 @@ def startDiarization(file):
                 model="gpt-4o-transcribe",
                 file=clipToTranscribe
             )
-            print(f"{speaker}: {transcription.text}")
+            # Add the transcription and diarizations to our array ready to send to database table
+            diarizationTranscriptions.append(Diarization(speaker=speaker, text=transcription.text, start=clipStart, end=clipEnd))
         except Exception:
             print(Exception) 
         finally:
             clipToTranscribe.close()
             os.remove(clipFileName)
+    print(json.dumps([Diarization.__dict__ for Diarization in diarizationTranscriptions]))
 
 startDiarization(file)
 
