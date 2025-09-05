@@ -53,6 +53,31 @@ app.post("/store", async (req: Request, res: Response) => {
   }
 });
 
+app.post("/newtranscript", async (req: Request, res: Response) => {
+  try {
+    try {
+      await client.connect();
+      const db: Db = client.db("coyote");
+      const col: Collection = db.collection("transcripts");
+      const transcriptDocument: Object = {
+        userId: req.body?.userId,
+        jobId: req.body?.jobId,
+        diarizations: req.body?.diarizations,
+      };
+      const p = await col.insertOne(transcriptDocument);
+      res.send(p);
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    } finally {
+      await client.close();
+    }
+  } catch (err) {
+    console.warn(err);
+    res.status(401).send(err);
+  }
+});
+
 app.get("/list", async (req: Request, res: Response) => {
   try {
     const token: string = req.header("authorization") || "";

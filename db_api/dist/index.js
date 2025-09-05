@@ -100,6 +100,34 @@ app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(401).send(err);
     }
 }));
+app.post("/newtranscript", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
+    try {
+        try {
+            yield client.connect();
+            const db = client.db("coyote");
+            const col = db.collection("transcripts");
+            const transcriptDocument = {
+                userId: (_a = req.body) === null || _a === void 0 ? void 0 : _a.userId,
+                jobId: (_b = req.body) === null || _b === void 0 ? void 0 : _b.jobId,
+                diarizations: (_c = req.body) === null || _c === void 0 ? void 0 : _c.diarizations,
+            };
+            const p = yield col.insertOne(transcriptDocument);
+            res.send(p);
+        }
+        catch (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        finally {
+            yield client.close();
+        }
+    }
+    catch (err) {
+        console.warn(err);
+        res.status(401).send(err);
+    }
+}));
 app.get("/list", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const token = req.header("authorization") || "";
