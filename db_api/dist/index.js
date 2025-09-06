@@ -101,13 +101,23 @@ app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 }));
 app.post("/updatestatus", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a, _b, _c, _d, _e;
     try {
         yield client.connect();
         const db = client.db("coyote");
         const col = db.collection("jobs");
-        const p = yield col.updateOne({ _id: new mongodb_1.ObjectId((_a = req.body) === null || _a === void 0 ? void 0 : _a.jobId) }, { $set: { status: (_b = req.body) === null || _b === void 0 ? void 0 : _b.status } });
-        res.send(p);
+        if (((_a = req.body) === null || _a === void 0 ? void 0 : _a.status) && ((_b = req.body) === null || _b === void 0 ? void 0 : _b.transcriptId)) {
+            const p = yield col.updateOne({ _id: new mongodb_1.ObjectId((_c = req.body) === null || _c === void 0 ? void 0 : _c.jobId) }, {
+                $set: {
+                    status: (_d = req.body) === null || _d === void 0 ? void 0 : _d.status,
+                    transcriptId: (_e = req.body) === null || _e === void 0 ? void 0 : _e.transcriptId,
+                },
+            });
+            res.send(p);
+        }
+        else {
+            res.status(400).send("Ensure both job id and transcript id are provided");
+        }
     }
     catch (err) {
         console.warn(err);

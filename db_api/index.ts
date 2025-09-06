@@ -58,11 +58,20 @@ app.post("/updatestatus", async (req: Request, res: Response) => {
     await client.connect();
     const db: Db = client.db("coyote");
     const col: Collection = db.collection("jobs");
-    const p = await col.updateOne(
-      { _id: new ObjectId(req.body?.jobId) },
-      { $set: { status: req.body?.status } }
-    );
-    res.send(p);
+    if (req.body?.status && req.body?.transcriptId) {
+      const p = await col.updateOne(
+        { _id: new ObjectId(req.body?.jobId) },
+        {
+          $set: {
+            status: req.body?.status,
+            transcriptId: req.body?.transcriptId,
+          },
+        }
+      );
+      res.send(p);
+    } else {
+      res.status(400).send("Ensure both job id and transcript id are provided");
+    }
   } catch (err) {
     console.warn(err);
     res.status(400).send(err);
