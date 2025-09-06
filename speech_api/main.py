@@ -48,16 +48,19 @@ def startDiarization(file, userId, jobId):
         clipStart = int(turn.start * 1000)
         clipEnd = int(turn.end * 1000)
         audioFile = AudioSegment.from_file(file)
+
         # Create a temporary name for our spliced audio
         clipFileName = f"{workFolder}\\{clipStart}_{clipEnd}.mp3"
         audioPartition = audioFile[ clipStart : clipEnd]
         try:
             clipToTranscribe = audioPartition.export(clipFileName, format="mp3")
+
             # Transcribe the sliced audio with Open AI whisper
             transcription = client.audio.transcriptions.create(
                 model="gpt-4o-transcribe",
                 file=clipToTranscribe
             )
+
             # Add the transcription and diarizations to our array ready to send to database table
             diarizationTranscriptions.append(Diarization(speaker=speaker, text=transcription.text, start=clipStart, end=clipEnd))
         except Exception:
@@ -95,15 +98,34 @@ def checkMessages():
         print(f"[{datetime.datetime.now()}] {key} downloaded to {inFile}")
         if not inFile:
             return
+        
         # Call our diarizations functions to start splicing and transcribing speakers
         diarizations = startDiarization(inFile, userId, jobId)
+        
         # Finally save the transcriptions to the db
-        print(diarizations)
+        if(saveTranscript(diarizations)):
+            print(f"[{datetime.datetime.now()}] Transcript saved to database")
+        else:
+            print(f"[{datetime.datetime.now()}] Transcript was not saved to database")
+
         #Delete the file from S3 bucket
         inFile.close()
         os.remove(inFile)
     except Exception as error:
         print(f"[{datetime.datetime.now()}] {error}")
+
+# Function to save transcript to database
+def saveTranscript(jsonBody):
+    headers = {'Content-Type': 'application/json'}
+    try:
+        response = requests.post(f"{os.getenv('DB_HOST')}/newtranscript", data=jsonBody, headers=headers)
+        if response.ok:
+            return True
+        else:
+            return False
+    except Exception as err:
+        print(f"[{datetime.datetime.now()}] {err}")
+        return False
 
 # Function to download file from S3 API service
 def downloadFile(url, key):

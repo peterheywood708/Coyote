@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import * as dotenv from "dotenv";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
-import { Collection, Db, MongoClient } from "mongodb";
+import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 const cors = require("cors");
 
 const app = express();
@@ -53,6 +53,24 @@ app.post("/store", async (req: Request, res: Response) => {
   }
 });
 
+app.post("/updatestatus", async (req: Request, res: Response) => {
+  try {
+    await client.connect();
+    const db: Db = client.db("coyote");
+    const col: Collection = db.collection("jobs");
+    const p = await col.updateOne(
+      { _id: new ObjectId(req.body?.jobId) },
+      { $set: { status: req.body?.status } }
+    );
+    res.send(p);
+  } catch (err) {
+    console.warn(err);
+    res.status(400).send(err);
+  } finally {
+    await client.close();
+  }
+});
+
 app.post("/newtranscript", async (req: Request, res: Response) => {
   try {
     try {
@@ -67,7 +85,7 @@ app.post("/newtranscript", async (req: Request, res: Response) => {
       const p = await col.insertOne(transcriptDocument);
       res.send(p);
     } catch (err) {
-      console.log(err);
+      console.warn(err);
       res.status(400).send(err);
     } finally {
       await client.close();

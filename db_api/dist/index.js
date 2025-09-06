@@ -100,6 +100,23 @@ app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(401).send(err);
     }
 }));
+app.post("/updatestatus", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        yield client.connect();
+        const db = client.db("coyote");
+        const col = db.collection("jobs");
+        const p = yield col.updateOne({ _id: new mongodb_1.ObjectId((_a = req.body) === null || _a === void 0 ? void 0 : _a.jobId) }, { $set: { status: (_b = req.body) === null || _b === void 0 ? void 0 : _b.status } });
+        res.send(p);
+    }
+    catch (err) {
+        console.warn(err);
+        res.status(400).send(err);
+    }
+    finally {
+        yield client.close();
+    }
+}));
 app.post("/newtranscript", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     try {
@@ -116,7 +133,7 @@ app.post("/newtranscript", (req, res) => __awaiter(void 0, void 0, void 0, funct
             res.send(p);
         }
         catch (err) {
-            console.log(err);
+            console.warn(err);
             res.status(400).send(err);
         }
         finally {
