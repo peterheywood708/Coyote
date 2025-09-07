@@ -101,11 +101,19 @@ def checkMessages():
         
         # Call our diarizations functions to start splicing and transcribing speakers
         diarizations = startDiarization(inFile, userId, jobId)
-        
+
         # Finally save the transcriptions to the db
-        if(saveTranscript(diarizations)):
-            print(f"[{datetime.datetime.now()}] Transcript saved to database")
+        transcript = saveTranscript(diarizations)
+        if(transcript['insertedId']):
+            if(updateJob(jobId, 2, transcript['insertedId'])):
+                print("Job record updated")
+            else:
+                print("Unable to update job record")
         else:
+            if(updateJob(jobId, -1)):
+                print(f"Job record {jobId} updated")
+            else:
+                print(f"Unable to update job record {jobId}")
             print(f"[{datetime.datetime.now()}] Transcript was not saved to database")
 
         #Delete the file from S3 bucket
@@ -119,6 +127,19 @@ def saveTranscript(jsonBody):
     headers = {'Content-Type': 'application/json'}
     try:
         response = requests.post(f"{os.getenv('DB_HOST')}/newtranscript", data=jsonBody, headers=headers)
+        if response.ok:
+            return response.json()
+        else:
+            return False
+    except Exception as err:
+        print(f"[{datetime.datetime.now()}] {err}")
+        return False
+
+# Function to update job record status and populate transcript table id
+def updateJob(jobId, status, transcriptId):
+    headers = {'Content-Type': 'application/json'}
+    try:
+        response = requests.post(f"{os.getenv('DB_HOST')}/updatestatus", json={"jobId": jobId, "status": status, "transcriptId": transcriptId}, headers=headers)
         if response.ok:
             return True
         else:
