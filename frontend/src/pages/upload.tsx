@@ -42,7 +42,7 @@ const Upload = () => {
           body: JSON.stringify({
             file: fileName,
             fileName: file?.name,
-            status: 1,
+            status: 0,
             userId: auth?.user?.profile?.sub,
           }),
         }

@@ -89,6 +89,15 @@ def checkMessages():
         userId = jsonBody['userId']
         jobId = jsonBody['jobId']
         session = requests.Session()
+
+        # Update the job record to in progress
+        if(updateJob(jobId, 1)):
+            print(f"[{datetime.datetime.now()}] Job record set to in progress")
+        else:
+            print(f"[{datetime.datetime.now()}] Unable to update job record to in progress")
+            return
+
+        # Download file from S3
         s3Res = session.get(os.getenv('S3_API')+'/retrieve', headers={'Content-Type': 'application/json','Key': key})
         if not s3Res.text:
             print(f"[{datetime.datetime.now()}] Unable to retrieve file URL from S3 using key {key}")
@@ -111,9 +120,9 @@ def checkMessages():
                 print("Unable to update job record")
         else:
             if(updateJob(jobId, -1)):
-                print(f"Job record {jobId} updated")
+                print(f"[{datetime.datetime.now()}] Job record {jobId} updated")
             else:
-                print(f"Unable to update job record {jobId}")
+                print(f"[{datetime.datetime.now()}] Unable to update job record {jobId}")
             print(f"[{datetime.datetime.now()}] Transcript was not saved to database")
 
         #Delete the file from S3 bucket
