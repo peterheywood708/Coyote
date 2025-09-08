@@ -106,7 +106,7 @@ app.post("/updatestatus", (req, res) => __awaiter(void 0, void 0, void 0, functi
         yield client.connect();
         const db = client.db("coyote");
         const col = db.collection("jobs");
-        if (((_a = req.body) === null || _a === void 0 ? void 0 : _a.status) && ((_b = req.body) === null || _b === void 0 ? void 0 : _b.jobId)) {
+        if (((_a = req.body) === null || _a === void 0 ? void 0 : _a.status) && ((_b = req.body) === null || _b === void 0 ? void 0 : _b.transcriptId)) {
             const p = yield col.updateOne({ _id: new mongodb_1.ObjectId((_c = req.body) === null || _c === void 0 ? void 0 : _c.jobId) }, {
                 $set: {
                     status: (_d = req.body) === null || _d === void 0 ? void 0 : _d.status,

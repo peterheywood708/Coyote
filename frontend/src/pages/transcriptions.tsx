@@ -5,9 +5,16 @@ import {
   Loader,
   Accordion,
   Container,
+  Badge,
+  Button,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { FaCircleInfo } from "react-icons/fa6";
+import {
+  FaCircleInfo,
+  FaMusic,
+  FaRegCalendar,
+  FaRegTrashCan,
+} from "react-icons/fa6";
 import { useAuth } from "react-oidc-context";
 
 const Transcriptions = () => {
@@ -45,7 +52,7 @@ const Transcriptions = () => {
   }, [transcripts, setTranscripts]);
 
   return (
-    <Container fluid>
+    <Container>
       <Text size="xl">Transcriptions</Text>
       <Space h="md"></Space>
       {loading ? (
@@ -57,14 +64,53 @@ const Transcriptions = () => {
             A list of your existing transcriptions can be found below.
           </Text>
           <Space h="md"></Space>
-          <Accordion>
+          <Accordion style={{ width: "600px" }} variant="separated">
             {transcripts?.map &&
               transcripts?.map((i: any) => {
                 return (
                   <Accordion.Item key={i?._id} value={i?._id}>
-                    <Accordion.Control>{i?.fileName}</Accordion.Control>
+                    <Accordion.Control>
+                      <h4>
+                        <FaMusic />
+                        &nbsp;&nbsp;&nbsp;
+                        {i?.fileName.replace(".mp3", "").replace(".wav", "")}
+                      </h4>
+                    </Accordion.Control>
                     <Accordion.Panel ta="left">
-                      Status: {i?.status}
+                      <FaRegCalendar /> &nbsp;Uploaded on{" "}
+                      {new Date(i?.date).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </Accordion.Panel>
+                    <Accordion.Panel ta="left">
+                      {i?.status == 0 ? (
+                        <Badge color="yellow">Pending</Badge>
+                      ) : null}
+                      {i?.status == 1 ? (
+                        <Badge color="blue">In progress</Badge>
+                      ) : null}
+                      {i?.status == 2 ? (
+                        <Badge color="green">Completed</Badge>
+                      ) : null}
+                    </Accordion.Panel>
+                    <Accordion.Panel ta="left">
+                      {i?.status == 2 ? (
+                        <>
+                          <Button
+                            variant="filled"
+                            onClick={() => alert(i?._id)}
+                          >
+                            View transcription
+                          </Button>
+                          &nbsp;&nbsp;
+                        </>
+                      ) : null}
+                      <Button variant="filled" color="red">
+                        <FaRegTrashCan />
+                        &nbsp;&nbsp; Delete
+                      </Button>
                     </Accordion.Panel>
                   </Accordion.Item>
                 );
