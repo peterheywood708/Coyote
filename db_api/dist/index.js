@@ -199,6 +199,7 @@ app.get("/list", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 const documents = yield db
                     .collection("jobs")
                     .find({ userId: payload === null || payload === void 0 ? void 0 : payload.username })
+                    .sort({ date: -1 })
                     .toArray();
                 res.send(documents);
             }

@@ -145,6 +145,7 @@ app.get("/list", async (req: Request, res: Response) => {
         const documents = await db
           .collection("jobs")
           .find({ userId: payload?.username })
+          .sort({ date: -1 })
           .toArray();
         res.send(documents);
       } catch (err) {
