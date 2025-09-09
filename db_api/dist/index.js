@@ -104,7 +104,6 @@ app.post("/delete", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     var _a;
     try {
         const token = req.header("authorization") || "";
-        console.log(token);
         const payload = yield verifier.verify(token);
         if (payload) {
             try {

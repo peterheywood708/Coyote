@@ -5,17 +5,11 @@ import {
   Loader,
   Accordion,
   Container,
-  Badge,
-  Button,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
-import {
-  FaCircleInfo,
-  FaMusic,
-  FaRegCalendar,
-  FaRegTrashCan,
-} from "react-icons/fa6";
+import { FaCircleInfo } from "react-icons/fa6";
 import { useAuth } from "react-oidc-context";
+import AccordionComponent from "../components/accordioncomponent";
 
 const Transcriptions = () => {
   const [transcripts, setTranscripts] = useState<object[] | null>();
@@ -37,7 +31,7 @@ const Transcriptions = () => {
             },
           }
         );
-        const transcriptions = await documents.json();
+        const transcriptions: Transcriptions = await documents.json();
         setTranscripts(transcriptions);
         setLoading(false);
       } catch (err) {
@@ -50,21 +44,6 @@ const Transcriptions = () => {
       getDocuments();
     }
   }, [transcripts, setTranscripts]);
-
-  const deleteJob = async (id: string) => {
-    try {
-      await fetch(`${import.meta.env.VITE_DB_ENDPOINT}/delete`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: auth.user?.access_token || "",
-        },
-        body: JSON.stringify({ id: id }),
-      });
-    } catch (err) {
-      console.warn(err);
-    }
-  };
 
   return (
     <Container>
@@ -83,50 +62,14 @@ const Transcriptions = () => {
             {transcripts?.map &&
               transcripts?.map((i: any) => {
                 return (
-                  <Accordion.Item key={i?._id} value={i?._id}>
-                    <Accordion.Control>
-                      <h4>
-                        <FaMusic />
-                        &nbsp;&nbsp;&nbsp;
-                        {i?.fileName.replace(".mp3", "").replace(".wav", "")}
-                      </h4>
-                    </Accordion.Control>
-                    <Accordion.Panel ta="left">
-                      <FaRegCalendar /> &nbsp;Uploaded on{" "}
-                      {new Date(i?.date).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
-                    </Accordion.Panel>
-                    <Accordion.Panel ta="left">
-                      {i?.status == 0 ? (
-                        <Badge color="yellow">Pending</Badge>
-                      ) : null}
-                      {i?.status == 1 ? (
-                        <Badge color="blue">In progress</Badge>
-                      ) : null}
-                      {i?.status == 2 ? (
-                        <Badge color="green">Completed</Badge>
-                      ) : null}
-                    </Accordion.Panel>
-                    <Accordion.Panel ta="left">
-                      {i?.status == 2 ? (
-                        <>
-                          <Button variant="filled">View transcription</Button>
-                          &nbsp;&nbsp;
-                        </>
-                      ) : null}
-                      <Button
-                        variant="filled"
-                        color="red"
-                        onClick={() => deleteJob(i?._id)}
-                      >
-                        <FaRegTrashCan />
-                        &nbsp;&nbsp; Delete
-                      </Button>
-                    </Accordion.Panel>
-                  </Accordion.Item>
+                  <AccordionComponent
+                    fileName={i.fileName}
+                    id={i._id}
+                    date={i.date}
+                    status={i.status}
+                    token={auth.user?.access_token}
+                    key={i._id}
+                  />
                 );
               })}
           </Accordion>

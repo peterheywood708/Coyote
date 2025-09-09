@@ -56,7 +56,6 @@ app.post("/store", async (req: Request, res: Response) => {
 app.post("/delete", async (req: Request, res: Response) => {
   try {
     const token: string = req.header("authorization") || "";
-    console.log(token);
     const payload = await verifier.verify(token);
     if (payload) {
       try {
