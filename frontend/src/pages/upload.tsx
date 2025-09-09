@@ -43,7 +43,6 @@ const Upload = () => {
             file: fileName,
             fileName: file?.name,
             status: 0,
-            userId: auth?.user?.profile?.sub,
           }),
         }
       );

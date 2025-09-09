@@ -63,7 +63,7 @@ const verifier = aws_jwt_verify_1.CognitoJwtVerifier.create({
 const port = process.env.PORT || "3001";
 const client = new mongodb_1.MongoClient(process.env.URI || "");
 app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d;
+    var _a, _b, _c;
     try {
         const token = req.header("authorization") || "";
         const payload = yield verifier.verify(token);
@@ -77,7 +77,7 @@ app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                     fileName: (_b = req.body) === null || _b === void 0 ? void 0 : _b.fileName,
                     status: (_c = req.body) === null || _c === void 0 ? void 0 : _c.status,
                     sqsId: null,
-                    userId: (_d = req.body) === null || _d === void 0 ? void 0 : _d.userId,
+                    userId: payload === null || payload === void 0 ? void 0 : payload.username,
                     date: Date.now(),
                 };
                 const p = yield col.insertOne(transcriptDocument);
@@ -112,6 +112,7 @@ app.post("/delete", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 const col = db.collection("jobs");
                 const p = yield col.deleteOne({
                     _id: mongodb_1.ObjectId.createFromHexString((_a = req.body) === null || _a === void 0 ? void 0 : _a.id),
+                    userId: payload === null || payload === void 0 ? void 0 : payload.username,
                 });
                 res.send(p);
             }
@@ -197,7 +198,7 @@ app.get("/list", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 const db = client.db("coyote");
                 const documents = yield db
                     .collection("jobs")
-                    .find({ userId: payload === null || payload === void 0 ? void 0 : payload.sub })
+                    .find({ userId: payload === null || payload === void 0 ? void 0 : payload.username })
                     .toArray();
                 res.send(documents);
             }

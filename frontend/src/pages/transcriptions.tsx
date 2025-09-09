@@ -31,7 +31,7 @@ const Transcriptions = () => {
             },
           }
         );
-        const transcriptions: Transcriptions = await documents.json();
+        const transcriptions = await documents.json();
         setTranscripts(transcriptions);
         setLoading(false);
       } catch (err) {

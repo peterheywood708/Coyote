@@ -33,7 +33,7 @@ app.post("/store", async (req: Request, res: Response) => {
           fileName: req.body?.fileName,
           status: req.body?.status,
           sqsId: null,
-          userId: req.body?.userId,
+          userId: payload?.username,
           date: Date.now(),
         };
         const p = await col.insertOne(transcriptDocument);
@@ -64,6 +64,7 @@ app.post("/delete", async (req: Request, res: Response) => {
         const col: Collection = db.collection("jobs");
         const p = await col.deleteOne({
           _id: ObjectId.createFromHexString(req.body?.id),
+          userId: payload?.username,
         });
         res.send(p);
       } catch (err) {
@@ -143,7 +144,7 @@ app.get("/list", async (req: Request, res: Response) => {
         const db: Db = client.db("coyote");
         const documents = await db
           .collection("jobs")
-          .find({ userId: payload?.sub })
+          .find({ userId: payload?.username })
           .toArray();
         res.send(documents);
       } catch (err) {

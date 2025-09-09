@@ -37,6 +37,9 @@ const AccordionComponent = ({ fileName, id, date, token, status }) => {
               &nbsp;&nbsp;&nbsp;
               {fileName.replace(".mp3", "").replace(".wav", "")}
             </h4>
+            {status == 0 ? <Badge color="yellow">Pending</Badge> : null}
+            {status == 1 ? <Badge color="blue">In progress</Badge> : null}
+            {status == 2 ? <Badge color="green">Completed</Badge> : null}
           </Accordion.Control>
           <Accordion.Panel ta="left">
             <FaRegCalendar /> &nbsp;Uploaded on{" "}
@@ -45,11 +48,6 @@ const AccordionComponent = ({ fileName, id, date, token, status }) => {
               month: "2-digit",
               year: "numeric",
             })}
-          </Accordion.Panel>
-          <Accordion.Panel ta="left">
-            {status == 0 ? <Badge color="yellow">Pending</Badge> : null}
-            {status == 1 ? <Badge color="blue">In progress</Badge> : null}
-            {status == 2 ? <Badge color="green">Completed</Badge> : null}
           </Accordion.Panel>
           <Accordion.Panel ta="left">
             {status == 2 ? (
