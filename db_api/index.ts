@@ -53,6 +53,35 @@ app.post("/store", async (req: Request, res: Response) => {
   }
 });
 
+app.post("/delete", async (req: Request, res: Response) => {
+  try {
+    const token: string = req.header("authorization") || "";
+    console.log(token);
+    const payload = await verifier.verify(token);
+    if (payload) {
+      try {
+        await client.connect();
+        const db: Db = client.db("coyote");
+        const col: Collection = db.collection("jobs");
+        const p = await col.deleteOne({
+          _id: ObjectId.createFromHexString(req.body?.id),
+        });
+        res.send(p);
+      } catch (err) {
+        console.log(err);
+        res.status(400).send(err);
+      } finally {
+        await client.close();
+      }
+    } else {
+      res.status(400).send("No authorisation token provided");
+    }
+  } catch (err) {
+    console.warn(err);
+    res.status(401).send(err);
+  }
+});
+
 app.post("/updatestatus", async (req: Request, res: Response) => {
   try {
     await client.connect();
@@ -60,7 +89,7 @@ app.post("/updatestatus", async (req: Request, res: Response) => {
     const col: Collection = db.collection("jobs");
     if (req.body?.status && req.body?.transcriptId) {
       const p = await col.updateOne(
-        { _id: new ObjectId(req.body?.jobId) },
+        { _id: ObjectId.createFromHexString(req.body?.jobId) },
         {
           $set: {
             status: req.body?.status,

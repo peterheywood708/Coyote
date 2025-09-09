@@ -51,6 +51,21 @@ const Transcriptions = () => {
     }
   }, [transcripts, setTranscripts]);
 
+  const deleteJob = async (id: string) => {
+    try {
+      await fetch(`${import.meta.env.VITE_DB_ENDPOINT}/delete`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: auth.user?.access_token || "",
+        },
+        body: JSON.stringify({ id: id }),
+      });
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+
   return (
     <Container>
       <Text size="xl">Transcriptions</Text>
@@ -98,16 +113,15 @@ const Transcriptions = () => {
                     <Accordion.Panel ta="left">
                       {i?.status == 2 ? (
                         <>
-                          <Button
-                            variant="filled"
-                            onClick={() => alert(i?._id)}
-                          >
-                            View transcription
-                          </Button>
+                          <Button variant="filled">View transcription</Button>
                           &nbsp;&nbsp;
                         </>
                       ) : null}
-                      <Button variant="filled" color="red">
+                      <Button
+                        variant="filled"
+                        color="red"
+                        onClick={() => deleteJob(i?._id)}
+                      >
                         <FaRegTrashCan />
                         &nbsp;&nbsp; Delete
                       </Button>
