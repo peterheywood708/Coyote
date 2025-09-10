@@ -110,11 +110,20 @@ app.post("/delete", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 yield client.connect();
                 const db = client.db("coyote");
                 const col = db.collection("jobs");
-                const p = yield col.deleteOne({
+                const p = yield col.findOneAndDelete({
                     _id: mongodb_1.ObjectId.createFromHexString((_a = req.body) === null || _a === void 0 ? void 0 : _a.id),
                     userId: payload === null || payload === void 0 ? void 0 : payload.username,
                 });
-                res.send(p);
+                // If the record is linked to a transcript, then delete this as well
+                if ((p === null || p === void 0 ? void 0 : p.transcriptId) && (p === null || p === void 0 ? void 0 : p.status) == 2) {
+                    const transcriptCol = db.collection("transcripts");
+                    yield transcriptCol.deleteOne({
+                        _id: mongodb_1.ObjectId.createFromHexString(p === null || p === void 0 ? void 0 : p.transcriptId),
+                        userId: payload === null || payload === void 0 ? void 0 : payload.username,
+                    });
+                }
+                // Send response back to frontend
+                res.send(`${p === null || p === void 0 ? void 0 : p.file} deleted`);
             }
             catch (err) {
                 console.log(err);

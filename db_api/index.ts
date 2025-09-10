@@ -62,11 +62,22 @@ app.post("/delete", async (req: Request, res: Response) => {
         await client.connect();
         const db: Db = client.db("coyote");
         const col: Collection = db.collection("jobs");
-        const p = await col.deleteOne({
+        const p = await col.findOneAndDelete({
           _id: ObjectId.createFromHexString(req.body?.id),
           userId: payload?.username,
         });
-        res.send(p);
+
+        // If the record is linked to a transcript, then delete this as well
+        if (p?.transcriptId && p?.status == 2) {
+          const transcriptCol: Collection = db.collection("transcripts");
+          await transcriptCol.deleteOne({
+            _id: ObjectId.createFromHexString(p?.transcriptId),
+            userId: payload?.username,
+          });
+        }
+
+        // Send response back to frontend
+        res.send(`${p?.file} deleted`);
       } catch (err) {
         console.log(err);
         res.status(400).send(err);
