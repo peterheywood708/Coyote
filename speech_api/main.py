@@ -90,13 +90,6 @@ def checkMessages():
         jobId = jsonBody['jobId']
         session = requests.Session()
 
-        # Update the job record to in progress
-        if(updateJob(jobId, 1)):
-            print(f"[{datetime.datetime.now()}] Job record set to in progress")
-        else:
-            print(f"[{datetime.datetime.now()}] Unable to update job record to in progress")
-            return
-
         # Download file from S3
         s3Res = session.get(os.getenv('S3_API')+'/retrieve', headers={'Content-Type': 'application/json','Key': key})
         if not s3Res.text:
@@ -108,6 +101,12 @@ def checkMessages():
         if not inFile:
             return
         
+        # Update the job record to in progress
+        if(updateJob(jobId, 1, '')):
+            print(f"[{datetime.datetime.now()}] Job record set to in progress")
+        else:
+            print(f"[{datetime.datetime.now()}] Unable to set ")
+
         # Call our diarizations functions to start splicing and transcribing speakers
         diarizations = startDiarization(inFile, userId, jobId)
 

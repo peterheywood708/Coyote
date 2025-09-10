@@ -83,11 +83,19 @@ app.post("/delete", async (req: Request, res: Response) => {
 });
 
 app.post("/updatestatus", async (req: Request, res: Response) => {
+  console.log(
+    "New request received - Job ID: " +
+      req.body?.jobId +
+      ", Status: " +
+      req.body?.status +
+      ", Transcript ID: " +
+      req.body?.transcriptId
+  );
   try {
     await client.connect();
     const db: Db = client.db("coyote");
     const col: Collection = db.collection("jobs");
-    if (req.body?.status && req.body?.transcriptId) {
+    if (req.body?.status && req.body?.status) {
       const p = await col.updateOne(
         { _id: ObjectId.createFromHexString(req.body?.jobId) },
         {
