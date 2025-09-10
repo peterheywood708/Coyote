@@ -180,7 +180,7 @@ app.get("/list", async (req: Request, res: Response) => {
   }
 });
 
-app.get("/get", async (req: Request, res: Response) => {
+app.get("/getjob", async (req: Request, res: Response) => {
   try {
     const token: string = req.header("authorization") || "";
     if (token) {
@@ -190,7 +190,37 @@ app.get("/get", async (req: Request, res: Response) => {
           await client.connect();
           const db: Db = client.db("coyote");
           const document = await db.collection("jobs").findOne({
-            _id: ObjectId.createFromHexString(req.body?.id),
+            _id: ObjectId.createFromHexString(req.header("id") || ""),
+            userId: payload?.username,
+          });
+          res.send(document);
+        } catch (err) {
+          console.warn(err);
+          res.status(400).send(err);
+        } finally {
+          await client.close();
+        }
+      }
+    } else {
+      res.status(401).send("No token passed");
+    }
+  } catch (err) {
+    console.warn(err);
+    res.status(401).send(err);
+  }
+});
+
+app.get("/gettranscript", async (req: Request, res: Response) => {
+  try {
+    const token: string = req.header("authorization") || "";
+    if (token) {
+      const payload = await verifier.verify(token);
+      if (payload) {
+        try {
+          await client.connect();
+          const db: Db = await client.db("coyote");
+          const document = await db.collection("transcripts").findOne({
+            _id: ObjectId.createFromHexString(req.header("transcriptid") || ""),
             userId: payload?.username,
           });
           res.send(document);
