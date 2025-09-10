@@ -34,24 +34,30 @@ app.get("/", (Request: Request, Response: Response) => {
 });
 
 app.post("/new", async (Request: Request, Response: Response) => {
-  if (Request.body?.key && Request.body?.userId && Request.body?.jobId) {
-    const messageBody: IBody = {
-      key: Request.body?.key,
-      userId: Request.body?.userId,
-      jobId: Request.body?.jobId,
-    };
-    const params = {
-      QueueUrl: process.env.AWS_QUEUE_URL || "",
-      MessageBody: JSON.stringify(messageBody),
-    };
-    try {
-      const data = await sqs.sendMessage(params).promise();
-      Response.send(`New SQS message sent. ID: ${data.MessageId}`);
-    } catch (err) {
-      Response.status(400).send(err);
+  const token: string = Request.header("authorization") || "";
+  const payload = await verifier.verify(token);
+  if (payload) {
+    if (Request.body?.key && Request.body?.jobId) {
+      const messageBody: IBody = {
+        key: Request.body?.key,
+        userId: payload?.username,
+        jobId: Request.body?.jobId,
+      };
+      const params = {
+        QueueUrl: process.env.AWS_QUEUE_URL || "",
+        MessageBody: JSON.stringify(messageBody),
+      };
+      try {
+        const data = await sqs.sendMessage(params).promise();
+        Response.send(`New SQS message sent. ID: ${data.MessageId}`);
+      } catch (err) {
+        Response.status(400).send(err);
+      }
+    } else {
+      Response.status(400).send("Body must include key, userId and jobId");
     }
   } else {
-    Response.status(400).send("Body must include key, userId and jobId");
+    Response.status(400).send("No authorisation token provided");
   }
 });
 

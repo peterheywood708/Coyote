@@ -69,27 +69,34 @@ app.get("/", (Request, Response) => {
     Response.send("Welcome to the SQS API");
 });
 app.post("/new", (Request, Response) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f;
-    if (((_a = Request.body) === null || _a === void 0 ? void 0 : _a.key) && ((_b = Request.body) === null || _b === void 0 ? void 0 : _b.userId) && ((_c = Request.body) === null || _c === void 0 ? void 0 : _c.jobId)) {
-        const messageBody = {
-            key: (_d = Request.body) === null || _d === void 0 ? void 0 : _d.key,
-            userId: (_e = Request.body) === null || _e === void 0 ? void 0 : _e.userId,
-            jobId: (_f = Request.body) === null || _f === void 0 ? void 0 : _f.jobId,
-        };
-        const params = {
-            QueueUrl: process.env.AWS_QUEUE_URL || "",
-            MessageBody: JSON.stringify(messageBody),
-        };
-        try {
-            const data = yield sqs.sendMessage(params).promise();
-            Response.send(`New SQS message sent. ID: ${data.MessageId}`);
+    var _a, _b, _c, _d;
+    const token = Request.header("authorization") || "";
+    const payload = yield verifier.verify(token);
+    if (payload) {
+        if (((_a = Request.body) === null || _a === void 0 ? void 0 : _a.key) && ((_b = Request.body) === null || _b === void 0 ? void 0 : _b.jobId)) {
+            const messageBody = {
+                key: (_c = Request.body) === null || _c === void 0 ? void 0 : _c.key,
+                userId: payload === null || payload === void 0 ? void 0 : payload.username,
+                jobId: (_d = Request.body) === null || _d === void 0 ? void 0 : _d.jobId,
+            };
+            const params = {
+                QueueUrl: process.env.AWS_QUEUE_URL || "",
+                MessageBody: JSON.stringify(messageBody),
+            };
+            try {
+                const data = yield sqs.sendMessage(params).promise();
+                Response.send(`New SQS message sent. ID: ${data.MessageId}`);
+            }
+            catch (err) {
+                Response.status(400).send(err);
+            }
         }
-        catch (err) {
-            Response.status(400).send(err);
+        else {
+            Response.status(400).send("Body must include key, userId and jobId");
         }
     }
     else {
-        Response.status(400).send("Body must include key, userId and jobId");
+        Response.status(400).send("No authorisation token provided");
     }
 }));
 app.get("/receive", (Request, Response) => __awaiter(void 0, void 0, void 0, function* () {

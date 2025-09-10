@@ -51,19 +51,26 @@ const Upload = () => {
       } else {
         const response: IResponse = await dbResponse.json();
         if (response?.acknowledged) {
-          setDbSaved(true);
-          // Add code here to add new SQS job
-          // const newSQS: Response = await fetch(
-          //   `${import.meta.env.VITE_SQS_ENDPOINT}/new`,
-          //   {
-          //     method: "POST",
-          //     headers: {
-          //       "Content-Type": "application/json",
-          //       Authorization: auth?.user?.access_token || "",
-          //     },
-          //     body: JSON.stringify({}),
-          //   }
-          // );
+          // Add a new job to SQS to start transcription via the speech API
+          const newSQS: Response = await fetch(
+            `${import.meta.env.VITE_SQS_ENDPOINT}/new`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: auth?.user?.access_token || "",
+              },
+              body: JSON.stringify({
+                key: fileName,
+                jobId: response?.insertedId,
+              }),
+            }
+          );
+          if (newSQS?.status != 200) {
+            setStoreError(true);
+          } else {
+            setDbSaved(true);
+          }
         }
       }
     } catch (err) {
