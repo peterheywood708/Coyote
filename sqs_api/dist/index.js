@@ -85,7 +85,7 @@ app.post("/new", (Request, Response) => __awaiter(void 0, void 0, void 0, functi
             };
             try {
                 const data = yield sqs.sendMessage(params).promise();
-                Response.send(`New SQS message sent. ID: ${data.MessageId}`);
+                Response.send(data);
             }
             catch (err) {
                 Response.status(400).send(err);
@@ -111,6 +111,23 @@ app.get("/receive", (Request, Response) => __awaiter(void 0, void 0, void 0, fun
     try {
         const data = yield sqs.receiveMessage(params).promise();
         Response.send(data.Messages || []);
+    }
+    catch (err) {
+        Response.status(400).send(err);
+    }
+}));
+// Delete a SQS message
+app.post("/delete", (Request, Response) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    // The below prevents caching so that messages from SQS are not recieved more than once
+    Response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    const params = {
+        QueueUrl: process.env.AWS_QUEUE_URL || "",
+        ReceiptHandle: (_a = Request.body) === null || _a === void 0 ? void 0 : _a.ReceiptHandle,
+    };
+    try {
+        const data = yield sqs.deleteMessage(params).promise();
+        Response.send();
     }
     catch (err) {
         Response.status(400).send(err);
