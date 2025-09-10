@@ -76,12 +76,16 @@ def checkMessages():
     session = requests.Session()
     res = session.get(os.getenv('SQS_API')+'/receive', headers={'Content-Type': 'application/json'})
     session.close()
-    if not res.text:
-        print("No new messages received")
+
+    # If no new messages then do not continue
+    if len(json.loads(res.text))==0:
+        print(f"[{datetime.datetime.now()}] No new messages available")
         return
     try:
         jsonRes = json.loads(res.text)
         jsonBody = json.loads(jsonRes[0]['Body'])
+        receiptHandle = jsonRes[0]['ReceiptHandle']
+        messageId = jsonRes[0]['MessageId']
         if not jsonBody['key']:
             print(f"[{datetime.datetime.now()}] No S3 key found")
             return
@@ -124,9 +128,18 @@ def checkMessages():
                 print(f"[{datetime.datetime.now()}] Unable to update job record {jobId}")
             print(f"[{datetime.datetime.now()}] Transcript was not saved to database")
 
-        #Delete the file from S3 bucket
+        # Delete the file from S3 bucket
         inFile.close()
         os.remove(inFile)
+
+        # Delete message from SQS
+        print(f"[{datetime.datetime.now()}] Deleting ${messageId}")
+        headers = {'Content-Type': 'application/json'}
+        try:
+            sqsDelete = session.post(os.getenv('S3_API')+'/delete', data={'ReceiptHandle':receiptHandle}, headers=headers)
+        except Exception as err:
+            print(f"[{datetime.datetime.now()}] {err}")
+
     except Exception as error:
         print(f"[{datetime.datetime.now()}] {error}")
 
