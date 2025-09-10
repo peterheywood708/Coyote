@@ -14,6 +14,7 @@ import { FaRegFileAudio, FaTableList } from "react-icons/fa6";
 import { BrowserRouter, Routes, Route } from "react-router";
 import Upload from "./pages/upload";
 import Transcriptions from "./pages/transcriptions";
+import Transcription from "./pages/transcription";
 import { useAuth } from "react-oidc-context";
 
 const theme = createTheme({
@@ -107,6 +108,10 @@ function App() {
                   <Route
                     path="/transcriptions"
                     element={<Transcriptions />}
+                  ></Route>
+                  <Route
+                    path="/transcription"
+                    element={<Transcription />}
                   ></Route>
                 </Routes>
               </BrowserRouter>

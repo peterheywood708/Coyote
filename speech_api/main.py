@@ -72,7 +72,7 @@ def startDiarization(file, userId, jobId):
 
 # Function to check for new messages from AWS SQS
 def checkMessages():
-    print("Checking for new messages..")
+    print(f"[{datetime.datetime.now()}] Checking for new messages..")
     session = requests.Session()
     res = session.get(os.getenv('SQS_API')+'/receive', headers={'Content-Type': 'application/json'})
     session.close()
@@ -88,6 +88,7 @@ def checkMessages():
         messageId = jsonRes[0]['MessageId']
         if not jsonBody['key']:
             print(f"[{datetime.datetime.now()}] No S3 key found")
+            updateJob(jobId, -1, None)
             return
         key = jsonBody['key']
         userId = jsonBody['userId']
@@ -98,11 +99,13 @@ def checkMessages():
         s3Res = session.get(os.getenv('S3_API')+'/retrieve', headers={'Content-Type': 'application/json','Key': key})
         if not s3Res.text:
             print(f"[{datetime.datetime.now()}] Unable to retrieve file URL from S3 using key {key}")
+            updateJob(jobId, -1, None)
             return
         print(f"[{datetime.datetime.now()}] Downloading {key} from {s3Res.text}")
         inFile = downloadFile(s3Res.text, key)
         print(f"[{datetime.datetime.now()}] {key} downloaded to {inFile}")
         if not inFile:
+            updateJob(jobId, -1, None)
             return
         
         # Update the job record to in progress

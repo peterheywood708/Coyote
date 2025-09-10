@@ -232,6 +232,40 @@ app.get("/list", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(401).send(err);
     }
 }));
+app.get("/get", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const token = req.header("authorization") || "";
+        if (token) {
+            const payload = yield verifier.verify(token);
+            if (payload) {
+                try {
+                    yield client.connect();
+                    const db = client.db("coyote");
+                    const document = yield db.collection("jobs").findOne({
+                        _id: mongodb_1.ObjectId.createFromHexString((_a = req.body) === null || _a === void 0 ? void 0 : _a.id),
+                        userId: payload === null || payload === void 0 ? void 0 : payload.username,
+                    });
+                    res.send(document);
+                }
+                catch (err) {
+                    console.warn(err);
+                    res.status(400).send(err);
+                }
+                finally {
+                    yield client.close();
+                }
+            }
+        }
+        else {
+            res.status(401).send("No token passed");
+        }
+    }
+    catch (err) {
+        console.warn(err);
+        res.status(401).send(err);
+    }
+}));
 app.listen(port, () => {
     console.log(`Database API running on port ${port}`);
 });
