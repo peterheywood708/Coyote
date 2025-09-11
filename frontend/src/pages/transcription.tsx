@@ -1,7 +1,16 @@
 import { useSearchParams } from "react-router";
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "react-oidc-context";
-import { Text, Space, Container, Loader, Table } from "@mantine/core";
+import {
+  Text,
+  Space,
+  Container,
+  Loader,
+  Table,
+  Card,
+  Divider,
+  Group,
+} from "@mantine/core";
 
 const Transcription = () => {
   const [searchParams] = useSearchParams();
@@ -105,10 +114,18 @@ const Transcription = () => {
             <Text size="xl">Unable to load transcription</Text>
           ) : (
             <>
-              <Text size="l">{data?.file}</Text>
-              <Space h="md"></Space>
               {audioUrl ? (
-                <audio controls src={audioUrl} ref={audioPlayerRef} />
+                <Card shadow="sm" padding="lg" radius="md" withBorder>
+                  <Card.Section>
+                    <Space h="md"></Space>
+                    <audio controls src={audioUrl} ref={audioPlayerRef} />
+                  </Card.Section>
+                  <Space h="md"></Space>
+                  <Divider />
+                  <Group justify="space-between" mt="md" mb="xs">
+                    <Text fw={500}>{data?.file}</Text>
+                  </Group>
+                </Card>
               ) : null}
               <Space h="md"></Space>
               {transcriptData ? (
