@@ -71,7 +71,7 @@ app.get("/retrieve", async (req: Request, res: Response) => {
       Key: key,
     };
     try {
-      const signedUrlExpireSeconds = 10;
+      const signedUrlExpireSeconds = 3600;
       const url = await s3.getSignedUrl("getObject", {
         Bucket: params.Bucket,
         Key: params.Key,

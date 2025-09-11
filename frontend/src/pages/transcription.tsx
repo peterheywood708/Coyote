@@ -1,14 +1,16 @@
 import { useSearchParams } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "react-oidc-context";
-import { Text, Space, Container, Loader } from "@mantine/core";
+import { Text, Space, Container, Loader, Table } from "@mantine/core";
 
 const Transcription = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(false);
   const [transcriptData, setTranscriptData] = useState();
+  const audioPlayerRef = useRef<HTMLAudioElement>(null);
   const [data, setData] = useState();
+  const [audioUrl, setAudioUrl] = useState("");
   const auth = useAuth();
 
   useEffect(() => {
@@ -26,28 +28,55 @@ const Transcription = () => {
             },
           }
         );
-        const job = await document.json();
-        setData(job);
-        try {
-          const transcript = await fetch(
-            `${import.meta.env.VITE_DB_ENDPOINT}/gettranscript`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                transcriptid: job?.transcriptId,
-                Authorization: auth.user?.access_token || "",
-              },
+        document
+          .json()
+          .then(async (job) => {
+            setData(job);
+            // Get diarizations
+            try {
+              const transcript = await fetch(
+                `${import.meta.env.VITE_DB_ENDPOINT}/gettranscript`,
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    transcriptid: job?.transcriptId,
+                    Authorization: auth.user?.access_token || "",
+                  },
+                }
+              );
+              const transcriptResult = await transcript.json();
+              setTranscriptData(transcriptResult);
+            } catch (err) {
+              setFetchError(true);
+              console.warn(err);
             }
-          );
-          const transcriptResult = await transcript.json();
-          setTranscriptData(transcriptResult);
-          console.log(transcriptResult);
-        } catch (err) {
-          setFetchError(true);
-          console.warn(err);
-        }
-        setLoading(false);
+            return job?.file;
+          })
+          // Get file information from S3 API
+          .then(async (key) => {
+            try {
+              const s3request = await fetch(
+                `${import.meta.env.VITE_S3_ENDPOINT}/retrieve`,
+                {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    key: key,
+                    Authorization: auth.user?.access_token || "",
+                  },
+                }
+              );
+              const s3result = await s3request.text();
+              setAudioUrl(s3result);
+            } catch (err) {
+              setFetchError(true);
+              console.warn(err);
+            }
+          })
+          .finally(() => {
+            setLoading(false);
+          });
       } catch (err) {
         setFetchError(true);
         console.warn(err);
@@ -60,6 +89,12 @@ const Transcription = () => {
     }
   }, [data, setData]);
 
+  const convertMilliseconds = (ms: number) => {
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+  };
+
   return (
     <Container>
       {loading ? (
@@ -70,25 +105,48 @@ const Transcription = () => {
             <Text size="xl">Unable to load transcription</Text>
           ) : (
             <>
-              <Text size="xl">{data?.file}</Text>
+              <Text size="l">{data?.file}</Text>
               <Space h="md"></Space>
+              {audioUrl ? (
+                <audio controls src={audioUrl} ref={audioPlayerRef} />
+              ) : null}
               <Space h="md"></Space>
               {transcriptData ? (
-                <>
-                  {transcriptData?.diarizations?.map((i) => {
-                    return (
-                      <>
-                        <Text ta="left">
-                          <a href="#">{i?.start}ms</a> -{" "}
-                          <a href="#">{i?.end}ms</a>
-                          &nbsp;&nbsp;&nbsp; Speaker{" "}
-                          {i?.speaker.slice(-2).replace(/^0+(?!$)/, "")}
-                          :&nbsp;{i?.text}
-                        </Text>
-                      </>
-                    );
-                  })}
-                </>
+                <Table>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>Speaker</Table.Th>
+                      <Table.Th>Time (mm:ss)</Table.Th>
+                      <Table.Th>Text</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {transcriptData?.diarizations?.map((i) => {
+                      return (
+                        <Table.Tr key={i?.id}>
+                          <Table.Td ta="left">
+                            Speaker{" "}
+                            {i?.speaker.slice(-2).replace(/^0+(?!$)/, "")}
+                          </Table.Td>
+                          <Table.Td ta="left">
+                            <a
+                              href="#"
+                              onClick={() => {
+                                audioPlayerRef.current!.currentTime =
+                                  Math.floor(i?.start / 1000);
+                                audioPlayerRef.current!.play();
+                              }}
+                            >
+                              {convertMilliseconds(i?.start)}
+                            </a>{" "}
+                            - <a href="#">{convertMilliseconds(i?.end)}</a>
+                          </Table.Td>
+                          <Table.Td ta="left">{i?.text}</Table.Td>
+                        </Table.Tr>
+                      );
+                    })}
+                  </Table.Tbody>
+                </Table>
               ) : null}
             </>
           )}

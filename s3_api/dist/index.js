@@ -111,7 +111,7 @@ app.get("/retrieve", (req, res) => __awaiter(void 0, void 0, void 0, function* (
             Key: key,
         };
         try {
-            const signedUrlExpireSeconds = 10;
+            const signedUrlExpireSeconds = 3600;
             const url = yield s3.getSignedUrl("getObject", {
                 Bucket: params.Bucket,
                 Key: params.Key,
