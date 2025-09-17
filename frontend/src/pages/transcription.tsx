@@ -19,7 +19,6 @@ const Transcription = () => {
   const [transcriptData, setTranscriptData] = useState();
   const audioPlayerRef = useRef<HTMLAudioElement>(null);
   const [data, setData] = useState();
-  const [audioUrl, setAudioUrl] = useState("");
   const auth = useAuth();
 
   useEffect(() => {
@@ -32,7 +31,7 @@ const Transcription = () => {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              id: searchParams.get("id"),
+              id: searchParams.get("id") as string,
               Authorization: auth.user?.access_token || "",
             },
           }
@@ -61,27 +60,6 @@ const Transcription = () => {
               console.warn(err);
             }
             return job?.file;
-          })
-          // Get file information from S3 API
-          .then(async (key) => {
-            try {
-              const s3request = await fetch(
-                `${import.meta.env.VITE_S3_ENDPOINT}/retrieve`,
-                {
-                  method: "GET",
-                  headers: {
-                    "Content-Type": "application/json",
-                    key: key,
-                    Authorization: auth.user?.access_token || "",
-                  },
-                }
-              );
-              const s3result = await s3request.text();
-              setAudioUrl(s3result);
-            } catch (err) {
-              setFetchError(true);
-              console.warn(err);
-            }
           })
           .finally(() => {
             setLoading(false);
@@ -114,31 +92,28 @@ const Transcription = () => {
             <Text size="xl">Unable to load transcription</Text>
           ) : (
             <>
-              {audioUrl ? (
-                <Card shadow="sm" padding="lg" radius="md" withBorder>
-                  <Card.Section>
-                    <Space h="md"></Space>
-                    <audio controls src={audioUrl} ref={audioPlayerRef} />
-                  </Card.Section>
+              <Card shadow="sm" padding="lg" radius="md" withBorder>
+                <Card.Section>
                   <Space h="md"></Space>
-                  <Divider />
-                  <Group justify="space-between" mt="md" mb="xs">
-                    <Text fw={500}>{data?.file}</Text>
-                  </Group>
-                </Card>
-              ) : null}
+                  <audio
+                    controls
+                    src={`${import.meta.env.VITE_S3_ENDPOINT}/stream?key=${
+                      data?.file
+                    }`}
+                    ref={audioPlayerRef}
+                  />
+                </Card.Section>
+                <Space h="md"></Space>
+                <Divider />
+                <Group justify="space-between" mt="md" mb="xs">
+                  <Text fw={500}>{data?.file}</Text>
+                </Group>
+              </Card>
               <Space h="md"></Space>
               {transcriptData ? (
                 <Table>
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Speaker</Table.Th>
-                      <Table.Th>Time (mm:ss)</Table.Th>
-                      <Table.Th>Text</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
                   <Table.Tbody>
-                    {transcriptData?.diarizations?.map((i) => {
+                    {transcriptData?.diarizations?.map((i: any) => {
                       return (
                         <Table.Tr key={i?.id}>
                           <Table.Td ta="left">
@@ -154,9 +129,9 @@ const Transcription = () => {
                                 audioPlayerRef.current!.play();
                               }}
                             >
-                              {convertMilliseconds(i?.start)}
-                            </a>{" "}
-                            - <a href="#">{convertMilliseconds(i?.end)}</a>
+                              {convertMilliseconds(i?.start)} -{" "}
+                              {convertMilliseconds(i?.end)}
+                            </a>
                           </Table.Td>
                           <Table.Td ta="left">{i?.text}</Table.Td>
                         </Table.Tr>

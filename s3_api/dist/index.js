@@ -103,21 +103,14 @@ app.post("/upload", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         res.status(401).send(err);
     }
 }));
-app.get("/retrieve", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const key = req.header("key") || "";
-    if (key) {
+app.get("/stream", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.query.key) {
         const params = {
             Bucket: process.env.S3_BUCKETNAME || "",
-            Key: key,
+            Key: req.query.key,
         };
         try {
-            const signedUrlExpireSeconds = 3600;
-            const url = yield s3.getSignedUrl("getObject", {
-                Bucket: params.Bucket,
-                Key: params.Key,
-                Expires: signedUrlExpireSeconds,
-            });
-            res.send(url);
+            const s3stream = yield s3.getObject(params).createReadStream().pipe(res);
         }
         catch (err) {
             res.status(400).send(err);

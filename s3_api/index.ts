@@ -2,6 +2,7 @@ import AWS, { S3 } from "aws-sdk";
 import express, { Request, Response } from "express";
 import * as dotenv from "dotenv";
 import { CognitoJwtVerifier } from "aws-jwt-verify";
+import { ParsedUrlQuery } from "querystring";
 
 const cors = require("cors");
 const app = express();
@@ -63,21 +64,14 @@ app.post("/upload", async (req: Request, res: Response) => {
   }
 });
 
-app.get("/retrieve", async (req: Request, res: Response) => {
-  const key: string = req.header("key") || "";
-  if (key) {
+app.get("/stream", async (req: Request, res: Response) => {
+  if (req.query.key) {
     const params = {
       Bucket: process.env.S3_BUCKETNAME || "",
-      Key: key,
+      Key: req.query.key as string,
     };
     try {
-      const signedUrlExpireSeconds = 3600;
-      const url = await s3.getSignedUrl("getObject", {
-        Bucket: params.Bucket,
-        Key: params.Key,
-        Expires: signedUrlExpireSeconds,
-      });
-      res.send(url);
+      const s3stream = await s3.getObject(params).createReadStream().pipe(res);
     } catch (err) {
       res.status(400).send(err);
     }
