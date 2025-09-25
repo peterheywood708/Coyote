@@ -19,7 +19,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            peterheywood708/coyotefrontend
+            ${{vars.DOCKERHUB_REGISTRY}}/${{vars.DOCKERHUB_FE_IMAGE}}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
