@@ -19,8 +19,6 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: peterheywood708/coyotefrontend
-          tags: |
-            type=semver,pattern={{version}}
       -
         name: Login to Docker Hub
         if: github.event_name != 'pull_request'
