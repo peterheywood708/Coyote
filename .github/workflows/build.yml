@@ -43,5 +43,5 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: peterheywood708/coyotefrontend:${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
