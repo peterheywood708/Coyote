@@ -14,11 +14,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Extract metadata (tags, labels) for Docker
+      -
+        name: Docker-meta
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
-          images: peterheywood708/coyotefrontend
+          images: |
+            peterheywood708/coyotefrontend
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
       -
         name: Login to Docker Hub
         if: github.event_name != 'pull_request'
@@ -34,11 +41,10 @@ jobs:
         uses: docker/setup-buildx-action@v3
             
       - name: Build and push
-        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
