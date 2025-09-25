@@ -28,7 +28,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v6
         with:
-          filepath: ./frontend/Dockerfile
+          filepath: ./frontend
           context: .
           push: true
           tags: peterheywood708/coyotefrontend:latest
