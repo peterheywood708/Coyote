@@ -8,7 +8,6 @@ import {
   Space,
   Loader,
   Text,
-  Flex,
 } from "@mantine/core";
 import { FaCircleInfo } from "react-icons/fa6";
 import { useAuth } from "react-oidc-context";

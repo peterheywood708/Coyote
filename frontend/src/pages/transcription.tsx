@@ -12,13 +12,29 @@ import {
   Group,
 } from "@mantine/core";
 
+interface ITranscript {
+  diarizations: IDiarization[];
+}
+
+type IDiarization = {
+  speaker: string;
+  id: string;
+  start: number;
+  end: number;
+  text: string;
+};
+
+interface IData {
+  file: string;
+}
+
 const Transcription = () => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [fetchError, setFetchError] = useState(false);
-  const [transcriptData, setTranscriptData] = useState();
+  const [transcriptData, setTranscriptData] = useState<ITranscript>();
   const audioPlayerRef = useRef<HTMLAudioElement>(null);
-  const [data, setData] = useState();
+  const [data, setData] = useState<IData>();
   const auth = useAuth();
 
   useEffect(() => {
@@ -84,6 +100,7 @@ const Transcription = () => {
 
   return (
     <Container>
+      {fetchError ? <>{fetchError}</> : null}
       {loading ? (
         <Loader />
       ) : (
@@ -113,7 +130,7 @@ const Transcription = () => {
               {transcriptData ? (
                 <Table>
                   <Table.Tbody>
-                    {transcriptData?.diarizations?.map((i: any) => {
+                    {transcriptData?.diarizations?.map((i: IDiarization) => {
                       return (
                         <Table.Tr key={i?.id}>
                           <Table.Td ta="left">

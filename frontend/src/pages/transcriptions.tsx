@@ -11,8 +11,16 @@ import { FaCircleInfo } from "react-icons/fa6";
 import { useAuth } from "react-oidc-context";
 import AccordionComponent from "../components/accordioncomponent";
 
+type ITranscript = {
+  fileName: string;
+  _id: string;
+  date: Date;
+  status: number;
+  token: string;
+};
+
 const Transcriptions = () => {
-  const [transcripts, setTranscripts] = useState<object[] | null>();
+  const [transcripts, setTranscripts] = useState<ITranscript[]>();
   const [fetchError, setFetchError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const auth = useAuth();
@@ -60,14 +68,14 @@ const Transcriptions = () => {
           <Space h="md"></Space>
           <Accordion style={{ width: "600px" }} variant="separated">
             {transcripts?.map &&
-              transcripts?.map((i: any) => {
+              transcripts?.map((i: ITranscript) => {
                 return (
                   <AccordionComponent
                     fileName={i.fileName}
                     id={i._id}
                     date={i.date}
                     status={i.status}
-                    token={auth.user?.access_token}
+                    token={auth.user?.access_token || ""}
                     key={i._id}
                   />
                 );

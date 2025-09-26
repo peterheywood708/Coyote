@@ -2,9 +2,23 @@ import { Accordion, Badge, Button } from "@mantine/core";
 import { FaMusic, FaRegCalendar, FaRegTrashCan } from "react-icons/fa6";
 import { useState } from "react";
 import { Loader } from "@mantine/core";
-import { Navigate, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 
-const AccordionComponent = ({ fileName, id, date, token, status }) => {
+type AccordianProps = {
+  fileName: string;
+  id: string;
+  date: Date;
+  token: string;
+  status: number;
+};
+
+const AccordionComponent = ({
+  fileName,
+  id,
+  date,
+  token,
+  status,
+}: AccordianProps) => {
   const [hidden, setHidden] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
