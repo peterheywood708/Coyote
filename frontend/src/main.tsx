@@ -17,5 +17,5 @@ createRoot(document.getElementById("root")!).render(
     <AuthProvider {...cognitoAuthConfig}>
       <App />
     </AuthProvider>
-  </StrictMode>
+  </StrictMode>,
 );
