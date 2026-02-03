@@ -1,9 +1,44 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: coyote
+  name: coyotefrontend
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: coyote
+      app: coyotefrontend
+  template:
+    metadata:
+      labels:
+        app: coyotefrontend
+    spec:
+      containers:
+        - name: frontend
+          image: peterheywood708/coyotefrontend:main
+          ports:
+            - containerPort: 8080
+      imagePullSecrets:
+        - name: regcred
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coyotedb
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: coyotedb
+  template:
+    metadata:
+      labels:
+        app: coyotedb
+    spec:
+      containers:
+        - name: db
+          image: peterheywood708/coyotedb:latest
+          ports:
+            - containerPort: 3001
+      imagePullSecrets:
+        - name: regcred

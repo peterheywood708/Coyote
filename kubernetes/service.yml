@@ -1,11 +1,24 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: coyote-service
+  name: coyotefrontend-service
 spec:
   selector:
-    app: coyote
+    app: coyotefrontend
   ports:
     - protocol: TCP
       port: 8080
       targetPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: coyotedb-service
+spec:
+  selector:
+    app: coyotedb
+  ports:
+    - protocol: TCP
+      port: 3001
+      targetPort: 3001
