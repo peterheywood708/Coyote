@@ -44,7 +44,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-  build-frontend:
+  build-db:
     name: Build DB
     runs-on: ubuntu-latest
     steps:
