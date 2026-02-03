@@ -48,7 +48,7 @@ app.post("/upload", async (req: Request, res: Response) => {
           }
           res.send(req?.headers?.filename);
           console.log(
-            `${req?.headers?.filename} uploaded successfully to ${data.Location}`
+            `${req?.headers?.filename} uploaded successfully to ${data.Location}`,
           );
         });
       } else {

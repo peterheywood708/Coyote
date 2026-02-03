@@ -1,5 +1,0 @@
-services:
-  frontend:
-    image: "peterheywood708/coyotefrontend:main"
-    ports:
-      - "8080:8080"

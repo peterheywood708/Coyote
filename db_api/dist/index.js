@@ -298,6 +298,9 @@ app.get("/gettranscript", (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.status(401).send(err);
     }
 }));
+app.get("/", (req, res) => {
+    res.status(200).send("DB Api up and running");
+});
 app.listen(port, () => {
     console.log(`Database API running on port ${port}`);
 });

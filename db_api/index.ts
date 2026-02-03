@@ -100,7 +100,7 @@ app.post("/updatestatus", async (req: Request, res: Response) => {
       ", Status: " +
       req.body?.status +
       ", Transcript ID: " +
-      req.body?.transcriptId
+      req.body?.transcriptId,
   );
   try {
     await client.connect();
@@ -114,7 +114,7 @@ app.post("/updatestatus", async (req: Request, res: Response) => {
             status: req.body?.status,
             transcriptId: req.body?.transcriptId,
           },
-        }
+        },
       );
       res.send(p);
     } else {
@@ -238,6 +238,10 @@ app.get("/gettranscript", async (req: Request, res: Response) => {
     console.warn(err);
     res.status(401).send(err);
   }
+});
+
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).send("DB Api up and running");
 });
 
 app.listen(port, () => {
