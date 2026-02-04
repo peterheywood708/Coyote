@@ -11,6 +11,7 @@ import {
   Divider,
   Group,
 } from "@mantine/core";
+import { VITE_DB_ENDPOINT, VITE_S3_ENDPOINT } from "../config";
 
 interface ITranscript {
   diarizations: IDiarization[];
@@ -41,17 +42,14 @@ const Transcription = () => {
     const getDocument = async () => {
       setLoading(true);
       try {
-        const document = await fetch(
-          `${import.meta.env.VITE_DB_ENDPOINT}/getjob`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              id: searchParams.get("id") as string,
-              Authorization: auth.user?.access_token || "",
-            },
-          }
-        );
+        const document = await fetch(`${VITE_DB_ENDPOINT}/getjob`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            id: searchParams.get("id") as string,
+            Authorization: auth.user?.access_token || "",
+          },
+        });
         document
           .json()
           .then(async (job) => {
@@ -59,7 +57,7 @@ const Transcription = () => {
             // Get diarizations
             try {
               const transcript = await fetch(
-                `${import.meta.env.VITE_DB_ENDPOINT}/gettranscript`,
+                `${VITE_DB_ENDPOINT}/gettranscript`,
                 {
                   method: "GET",
                   headers: {
@@ -67,7 +65,7 @@ const Transcription = () => {
                     transcriptid: job?.transcriptId,
                     Authorization: auth.user?.access_token || "",
                   },
-                }
+                },
               );
               const transcriptResult = await transcript.json();
               setTranscriptData(transcriptResult);
@@ -114,9 +112,7 @@ const Transcription = () => {
                   <Space h="md"></Space>
                   <audio
                     controls
-                    src={`${import.meta.env.VITE_S3_ENDPOINT}/stream?key=${
-                      data?.file
-                    }`}
+                    src={`${VITE_S3_ENDPOINT}/stream?key=${data?.file}`}
                     ref={audioPlayerRef}
                   />
                 </Card.Section>

@@ -208,12 +208,13 @@ app.get("/list", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const token = req.header("authorization") || "";
         const payload = yield verifier.verify(token);
         if (payload) {
+            console.log(payload);
             try {
                 yield client.connect();
                 const db = client.db("coyote");
                 const documents = yield db
                     .collection("jobs")
-                    .find({ userId: payload === null || payload === void 0 ? void 0 : payload.username })
+                    .find({ userId: payload === null || payload === void 0 ? void 0 : payload.sub })
                     .sort({ date: -1 })
                     .toArray();
                 res.send(documents);

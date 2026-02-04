@@ -42,3 +42,7 @@ spec:
             - containerPort: 3001
       imagePullSecrets:
         - name: regcred
+    volumes:
+      - name: config-js
+        ConfigMap:
+          name: coyotefe-ConfigMap

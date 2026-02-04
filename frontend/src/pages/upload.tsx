@@ -11,6 +11,11 @@ import {
 } from "@mantine/core";
 import { FaCircleInfo } from "react-icons/fa6";
 import { useAuth } from "react-oidc-context";
+import {
+  VITE_DB_ENDPOINT,
+  VITE_SQS_ENDPOINT,
+  VITE_S3_ENDPOINT,
+} from "../config";
 
 interface IResponse {
   acknowledged: boolean;
@@ -30,41 +35,35 @@ const Upload = () => {
     setLoading(true);
     setStoreError(false);
     try {
-      const dbResponse: Response = await fetch(
-        `${import.meta.env.VITE_DB_ENDPOINT}/store`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: auth?.user?.access_token || "",
-          },
-          body: JSON.stringify({
-            file: fileName,
-            fileName: file?.name,
-            status: 0,
-          }),
-        }
-      );
+      const dbResponse: Response = await fetch(`${VITE_DB_ENDPOINT}/store`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: auth?.user?.access_token || "",
+        },
+        body: JSON.stringify({
+          file: fileName,
+          fileName: file?.name,
+          status: 0,
+        }),
+      });
       if (dbResponse?.status != 200) {
         setStoreError(true);
       } else {
         const response: IResponse = await dbResponse.json();
         if (response?.acknowledged) {
           // Add a new job to SQS to start transcription via the speech API
-          const newSQS: Response = await fetch(
-            `${import.meta.env.VITE_SQS_ENDPOINT}/new`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: auth?.user?.access_token || "",
-              },
-              body: JSON.stringify({
-                key: fileName,
-                jobId: response?.insertedId,
-              }),
-            }
-          );
+          const newSQS: Response = await fetch(`${VITE_SQS_ENDPOINT}/new`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: auth?.user?.access_token || "",
+            },
+            body: JSON.stringify({
+              key: fileName,
+              jobId: response?.insertedId,
+            }),
+          });
           if (newSQS?.status != 200) {
             setStoreError(true);
           } else {
@@ -88,17 +87,14 @@ const Upload = () => {
           setLoading(true);
           const formData: FormData = new FormData();
           formData.append("file", file);
-          const response: Response = await fetch(
-            `${import.meta.env.VITE_S3_ENDPOINT}/upload`,
-            {
-              method: "POST",
-              body: formData,
-              headers: {
-                Authorization: auth?.user?.access_token || "",
-                filename: `${Date.now()}_${file?.name}`,
-              },
-            }
-          );
+          const response: Response = await fetch(`${VITE_S3_ENDPOINT}/upload`, {
+            method: "POST",
+            body: formData,
+            headers: {
+              Authorization: auth?.user?.access_token || "",
+              filename: `${Date.now()}_${file?.name}`,
+            },
+          });
 
           if (response?.status != 200) {
             setUploadError(true);

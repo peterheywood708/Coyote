@@ -158,12 +158,13 @@ app.get("/list", async (req: Request, res: Response) => {
     const token: string = req.header("authorization") || "";
     const payload = await verifier.verify(token);
     if (payload) {
+      console.log(payload);
       try {
         await client.connect();
         const db: Db = client.db("coyote");
         const documents = await db
           .collection("jobs")
-          .find({ userId: payload?.username })
+          .find({ userId: payload?.sub })
           .sort({ date: -1 })
           .toArray();
         res.send(documents);
