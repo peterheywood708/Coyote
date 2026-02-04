@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { FaCircleInfo } from "react-icons/fa6";
 import { useAuth } from "react-oidc-context";
 import AccordionComponent from "../components/accordioncomponent";
-import { VITE_DB_ENDPOINT } from "../config";
+const config = await fetch("/config.json").then((res) => res.json());
 
 type ITranscript = {
   fileName: string;
@@ -30,7 +30,7 @@ const Transcriptions = () => {
     const getDocuments = async () => {
       setLoading(true);
       try {
-        const documents = await fetch(`${VITE_DB_ENDPOINT}/list`, {
+        const documents = await fetch(`${config.VITE_DB_ENDPOINT}/list`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

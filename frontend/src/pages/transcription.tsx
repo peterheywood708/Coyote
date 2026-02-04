@@ -11,7 +11,7 @@ import {
   Divider,
   Group,
 } from "@mantine/core";
-import { VITE_DB_ENDPOINT, VITE_S3_ENDPOINT } from "../config";
+const config = await fetch("/config.json").then((res) => res.json());
 
 interface ITranscript {
   diarizations: IDiarization[];
@@ -42,7 +42,7 @@ const Transcription = () => {
     const getDocument = async () => {
       setLoading(true);
       try {
-        const document = await fetch(`${VITE_DB_ENDPOINT}/getjob`, {
+        const document = await fetch(`${config.VITE_DB_ENDPOINT}/getjob`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -57,7 +57,7 @@ const Transcription = () => {
             // Get diarizations
             try {
               const transcript = await fetch(
-                `${VITE_DB_ENDPOINT}/gettranscript`,
+                `${config.VITE_DB_ENDPOINT}/gettranscript`,
                 {
                   method: "GET",
                   headers: {
@@ -112,7 +112,7 @@ const Transcription = () => {
                   <Space h="md"></Space>
                   <audio
                     controls
-                    src={`${VITE_S3_ENDPOINT}/stream?key=${data?.file}`}
+                    src={`${config.VITE_S3_ENDPOINT}/stream?key=${data?.file}`}
                     ref={audioPlayerRef}
                   />
                 </Card.Section>

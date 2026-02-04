@@ -3,7 +3,7 @@ import { FaMusic, FaRegCalendar, FaRegTrashCan } from "react-icons/fa6";
 import { useState } from "react";
 import { Loader } from "@mantine/core";
 import { useNavigate } from "react-router";
-import { VITE_DB_ENDPOINT } from "../config";
+const config = await fetch("/config.json").then((res) => res.json());
 
 type AccordianProps = {
   fileName: string;
@@ -27,7 +27,7 @@ const AccordionComponent = ({
   const deleteJob = async (id: string) => {
     setLoading(true);
     try {
-      await fetch(`${VITE_DB_ENDPOINT}/delete`, {
+      await fetch(`${config.VITE_DB_ENDPOINT}/delete`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
