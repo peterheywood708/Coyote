@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: coyotefrontend
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: coyotefrontend
@@ -19,14 +19,17 @@ spec:
             - containerPort: 8080
       imagePullSecrets:
         - name: regcred
-
+      volumes:
+        - name: config-js
+          configMap:
+            name: coyotefe-configmap
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: coyotedb
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: coyotedb
@@ -42,7 +45,3 @@ spec:
             - containerPort: 3001
       imagePullSecrets:
         - name: regcred
-    volumes:
-      - name: config-js
-        ConfigMap:
-          name: coyotefe-ConfigMap
