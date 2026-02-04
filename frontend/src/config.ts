@@ -15,3 +15,15 @@ export {
   VITE_AWS_REDIRECTURI,
   VITE_AWS_COGNITODOMAIN,
 };
+
+declare global {
+  interface Window {
+    VITE_S3_ENDPOINT: string;
+    VITE_DB_ENDPOINT: string;
+    VITE_SQS_ENDPOINT: string;
+    VITE_AWS_CLIENTID: string;
+    VITE_AWS_AUTHORITY: string;
+    VITE_AWS_REDIRECTURI: string;
+    VITE_AWS_COGNITODOMAIN: string;
+  }
+}
