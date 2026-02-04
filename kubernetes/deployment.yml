@@ -17,6 +17,7 @@ spec:
           image: peterheywood708/coyotefrontend:main
           ports:
             - containerPort: 8080
+          imagePullPolicy: Always
       imagePullSecrets:
         - name: regcred
       volumes:
@@ -43,5 +44,6 @@ spec:
           image: peterheywood708/coyotedb:latest
           ports:
             - containerPort: 3001
+          imagePullPolicy: Always
       imagePullSecrets:
         - name: regcred
