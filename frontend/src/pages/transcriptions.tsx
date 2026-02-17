@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { FaCircleInfo } from "react-icons/fa6";
 import { useAuth } from "react-oidc-context";
 import AccordionComponent from "../components/accordioncomponent";
-const config = await fetch("/config.json").then((res) => res.json());
+const config = await fetch("/config/config.json").then((res) => res.json());
 
 type ITranscript = {
   fileName: string;

@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 import { AuthProvider } from "react-oidc-context";
-const config = await fetch("/config.json").then((res) => res.json());
+const config = await fetch("/config/config.json").then((res) => res.json());
 
 const cognitoAuthConfig = {
   authority: config.VITE_AWS_AUTHORITY,

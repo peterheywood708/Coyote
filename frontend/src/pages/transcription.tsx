@@ -11,7 +11,7 @@ import {
   Divider,
   Group,
 } from "@mantine/core";
-const config = await fetch("/config.json").then((res) => res.json());
+const config = await fetch("/config/config.json").then((res) => res.json());
 
 interface ITranscript {
   diarizations: IDiarization[];

@@ -57,7 +57,11 @@ function App() {
               hiddenFrom="sm"
               size="sm"
             />
-            <img src="logo.png" alt="Click here to return home" height="32" />
+            <img
+              src="images/logo.png"
+              alt="Click here to return home"
+              height="32"
+            />
             <Group h="100%" px="md">
               {auth.isAuthenticated ? (
                 <>

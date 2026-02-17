@@ -20,7 +20,7 @@ spec:
           imagePullPolicy: Always
           volumeMounts:
             - name: config-js
-              mountPath: /appmin
+              mountPath: /usr/share/nginx/html/config
               readOnly: true
       imagePullSecrets:
         - name: regcred

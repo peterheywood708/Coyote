@@ -3,7 +3,7 @@ import { FaMusic, FaRegCalendar, FaRegTrashCan } from "react-icons/fa6";
 import { useState } from "react";
 import { Loader } from "@mantine/core";
 import { useNavigate } from "react-router";
-const config = await fetch("/config.json").then((res) => res.json());
+const config = await fetch("/config/config.json").then((res) => res.json());
 
 type AccordianProps = {
   fileName: string;
