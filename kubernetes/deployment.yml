@@ -18,12 +18,16 @@ spec:
           ports:
             - containerPort: 8080
           imagePullPolicy: Always
+          volumeMounts:
+            - name: config-js
+              mountPath: /app/dist
+              readOnly: true
       imagePullSecrets:
         - name: regcred
       volumes:
         - name: config-js
           configMap:
-            name: coyotefe-configmap
+            name: coyotefe-config
 ---
 apiVersion: apps/v1
 kind: Deployment
