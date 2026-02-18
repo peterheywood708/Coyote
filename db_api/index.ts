@@ -242,7 +242,9 @@ app.get("/gettranscript", async (req: Request, res: Response) => {
 });
 
 app.get("/", (req: Request, res: Response) => {
-  res.status(200).send("DB Api up and running");
+  res
+    .status(200)
+    .send("DB Api up and running. Cognito ID: " + process.env.COGNITO_CLIENTID);
 });
 
 app.listen(port, () => {

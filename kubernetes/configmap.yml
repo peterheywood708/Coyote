@@ -21,7 +21,7 @@ metadata:
   name: coyotedb-config
   namespace: default
 data:
-  PORT: 3001
+  PORT: "3001"
   URI: "mongodb+srv://admin:admin@cluster0.vlvllm7.mongodb.net/?appName=Cluster0"
   COGNITO_USERPOOLID: "eu-west-2_JNL3rksoP"
   COGNITO_CLIENTID: "46f7p74qp752l43kgrlj8q29jg"
