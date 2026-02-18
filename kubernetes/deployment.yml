@@ -45,7 +45,7 @@ spec:
     spec:
       containers:
         - name: db
-          image: peterheywood708/coyotedb:latest
+          image: peterheywood708/coyotedb:main
           ports:
             - containerPort: 3001
           envFrom:
