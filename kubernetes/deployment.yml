@@ -48,6 +48,9 @@ spec:
           image: peterheywood708/coyotedb:latest
           ports:
             - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: coyotedb-config
           imagePullPolicy: Always
       imagePullSecrets:
-        - name: regcred
+        - name: regcredy
