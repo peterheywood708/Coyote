@@ -13,8 +13,6 @@ const cognitoAuthConfig = {
   scope: "email openid phone",
 };
 
-console.log("AWS Authority: " + config.VITE_AWS_AUTHORITY);
-
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <AuthProvider {...cognitoAuthConfig}>
