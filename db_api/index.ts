@@ -19,7 +19,7 @@ const verifier = CognitoJwtVerifier.create({
 const port: string = process.env.PORT || "3001";
 const client: MongoClient = new MongoClient(process.env.URI || "");
 
-app.post("/db/store", async (req: Request, res: Response) => {
+app.post("/store", async (req: Request, res: Response) => {
   try {
     const token: string = req.header("authorization") || "";
     const payload = await verifier.verify(token);
@@ -53,7 +53,7 @@ app.post("/db/store", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/db/delete", async (req: Request, res: Response) => {
+app.post("/delete", async (req: Request, res: Response) => {
   try {
     const token: string = req.header("authorization") || "";
     const payload = await verifier.verify(token);
@@ -93,7 +93,7 @@ app.post("/db/delete", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/db/updatestatus", async (req: Request, res: Response) => {
+app.post("/updatestatus", async (req: Request, res: Response) => {
   console.log(
     "New request received - Job ID: " +
       req.body?.jobId +
@@ -128,7 +128,7 @@ app.post("/db/updatestatus", async (req: Request, res: Response) => {
   }
 });
 
-app.post("/db/newtranscript", async (req: Request, res: Response) => {
+app.post("/newtranscript", async (req: Request, res: Response) => {
   try {
     try {
       await client.connect();
@@ -153,7 +153,7 @@ app.post("/db/newtranscript", async (req: Request, res: Response) => {
   }
 });
 
-app.get("/db/list", async (req: Request, res: Response) => {
+app.get("/list", async (req: Request, res: Response) => {
   try {
     const token: string = req.header("authorization") || "";
     const payload = await verifier.verify(token);
@@ -181,7 +181,7 @@ app.get("/db/list", async (req: Request, res: Response) => {
   }
 });
 
-app.get("/db/getjob", async (req: Request, res: Response) => {
+app.get("/getjob", async (req: Request, res: Response) => {
   try {
     const token: string = req.header("authorization") || "";
     if (token) {
@@ -211,7 +211,7 @@ app.get("/db/getjob", async (req: Request, res: Response) => {
   }
 });
 
-app.get("/db/gettranscript", async (req: Request, res: Response) => {
+app.get("/gettranscript", async (req: Request, res: Response) => {
   try {
     const token: string = req.header("authorization") || "";
     if (token) {

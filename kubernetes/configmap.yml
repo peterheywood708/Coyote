@@ -7,7 +7,7 @@ data:
   config.json: |
     {
       "VITE_S3_ENDPOINT": "http://localhost:3002",
-      "VITE_DB_ENDPOINT": "/db",
+      "VITE_DB_ENDPOINT": "/db/",
       "VITE_SQS_ENDPOINT": "http://localhost:3003",
       "VITE_AWS_CLIENTID": "46f7p74qp752l43kgrlj8q29jg",
       "VITE_AWS_AUTHORITY": "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_JNL3rksoP",
@@ -37,6 +37,6 @@ data:
       server_name _;
       root /usr/share/nginx/html;
       index index.html;
-      location { try_files $uri $uri/ /index.html; }
-      location /db { proxy_pass http://coyotedb-service:3001; }
+      location /db/ { proxy_pass http://coyotedb-service:3001/; }
+      location / { try_files $uri $uri/ /index.html; }
     }
