@@ -33,7 +33,7 @@ app.post("/store", async (req: Request, res: Response) => {
           fileName: req.body?.fileName,
           status: req.body?.status,
           sqsId: null,
-          userId: payload?.username,
+          userId: payload?.sub,
           date: Date.now(),
         };
         const p = await col.insertOne(transcriptDocument);
@@ -64,7 +64,7 @@ app.post("/delete", async (req: Request, res: Response) => {
         const col: Collection = db.collection("jobs");
         const p = await col.findOneAndDelete({
           _id: ObjectId.createFromHexString(req.body?.id),
-          userId: payload?.username,
+          userId: payload?.sub,
         });
 
         // If the record is linked to a transcript, then delete this as well
@@ -72,7 +72,7 @@ app.post("/delete", async (req: Request, res: Response) => {
           const transcriptCol: Collection = db.collection("transcripts");
           await transcriptCol.deleteOne({
             _id: ObjectId.createFromHexString(p?.transcriptId),
-            userId: payload?.username,
+            userId: payload?.sub,
           });
         }
 
@@ -158,7 +158,6 @@ app.get("/list", async (req: Request, res: Response) => {
     const token: string = req.header("authorization") || "";
     const payload = await verifier.verify(token);
     if (payload) {
-      console.log(payload);
       try {
         await client.connect();
         const db: Db = client.db("coyote");
@@ -192,7 +191,7 @@ app.get("/getjob", async (req: Request, res: Response) => {
           const db: Db = client.db("coyote");
           const document = await db.collection("jobs").findOne({
             _id: ObjectId.createFromHexString(req.header("id") || ""),
-            userId: payload?.username,
+            userId: payload?.sub,
           });
           res.send(document);
         } catch (err) {
@@ -222,7 +221,7 @@ app.get("/gettranscript", async (req: Request, res: Response) => {
           const db: Db = await client.db("coyote");
           const document = await db.collection("transcripts").findOne({
             _id: ObjectId.createFromHexString(req.header("transcriptid") || ""),
-            userId: payload?.username,
+            userId: payload?.sub,
           });
           res.send(document);
         } catch (err) {

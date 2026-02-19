@@ -208,7 +208,6 @@ app.get("/list", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const token = req.header("authorization") || "";
         const payload = yield verifier.verify(token);
         if (payload) {
-            console.log(payload);
             try {
                 yield client.connect();
                 const db = client.db("coyote");
@@ -244,7 +243,7 @@ app.get("/getjob", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                     const db = client.db("coyote");
                     const document = yield db.collection("jobs").findOne({
                         _id: mongodb_1.ObjectId.createFromHexString(req.header("id") || ""),
-                        userId: payload === null || payload === void 0 ? void 0 : payload.username,
+                        userId: payload === null || payload === void 0 ? void 0 : payload.sub,
                     });
                     res.send(document);
                 }
@@ -300,7 +299,7 @@ app.get("/gettranscript", (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 }));
 app.get("/", (req, res) => {
-    res.status(200).send("DB Api up and running");
+    res.status(200).send("DB Api up and running.");
 });
 app.listen(port, () => {
     console.log(`Database API running on port ${port}`);
