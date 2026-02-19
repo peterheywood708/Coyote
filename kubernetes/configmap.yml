@@ -2,16 +2,15 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: coyotefe-config
-  namespace: default
 data:
   config.json: |
     {
       "VITE_S3_ENDPOINT": "http://localhost:3002",
-      "VITE_DB_ENDPOINT": "http://coyotedb-service:3001",
+      "VITE_DB_ENDPOINT": "/db",
       "VITE_SQS_ENDPOINT": "http://localhost:3003",
       "VITE_AWS_CLIENTID": "46f7p74qp752l43kgrlj8q29jg",
       "VITE_AWS_AUTHORITY": "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_JNL3rksoP",
-      "VITE_AWS_REDIRECTURI": "http://localhost:8080/",
+      "VITE_AWS_REDIRECTURI": "http://127.0.0.1:8080/",
       "VITE_AWS_COGNITODOMAIN": "https://eu-west-2jnl3rksop.auth.eu-west-2.amazoncognito.com"
     }
 ---
@@ -19,9 +18,22 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: coyotedb-config
-  namespace: default
 data:
   PORT: "3001"
   URI: "mongodb+srv://admin:admin@cluster0.vlvllm7.mongodb.net/?appName=Cluster0"
   COGNITO_USERPOOLID: "eu-west-2_JNL3rksoP"
   COGNITO_CLIENTID: "46f7p74qp752l43kgrlj8q29jg"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coyotefe-nginx-config
+data:
+  nginx.conf: |
+    server {
+      listen 8080;
+      server_name _;
+      root /usr/share/nginx/html;
+      index index.html;
+      location / { try_files $uri $uri/ /index.html; }
+    }
