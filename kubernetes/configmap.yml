@@ -2,11 +2,10 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: coyotefe-config
-  namespace: default
 data:
   config.json: |
     {
-      "VITE_S3_ENDPOINT": "http://localhost:3002",
+      "VITE_S3_ENDPOINT": "/s3/",
       "VITE_DB_ENDPOINT": "/db/",
       "VITE_SQS_ENDPOINT": "http://localhost:3003",
       "VITE_AWS_CLIENTID": "46f7p74qp752l43kgrlj8q29jg",
@@ -19,10 +18,22 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: coyotedb-config
-  namespace: default
 data:
   PORT: "3001"
   URI: "mongodb+srv://admin:admin@cluster0.vlvllm7.mongodb.net/?appName=Cluster0"
+  COGNITO_USERPOOLID: "eu-west-2_JNL3rksoP"
+  COGNITO_CLIENTID: "46f7p74qp752l43kgrlj8q29jg"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coyotes3-config
+data:
+  S3_ACCESSKEY: "AKIA6PS5JNXZGPRBBKVV"
+  S3_SECRET: "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"
+  S3_BUCKETNAME: "coyote-audio-s3"
+  AWS_REGION: "eu-west-2"
+  PORT: "3002"
   COGNITO_USERPOOLID: "eu-west-2_JNL3rksoP"
   COGNITO_CLIENTID: "46f7p74qp752l43kgrlj8q29jg"
 ---
@@ -38,5 +49,6 @@ data:
       root /usr/share/nginx/html;
       index index.html;
       location /db/ { proxy_pass http://coyotedb-service:3001/; }
+      location /s3/ { proxy_pass http://coyotes3-service:3001/; }
       location / { try_files $uri $uri/ /index.html; }
     }

@@ -123,3 +123,6 @@ app.get("/stream", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 app.listen(port, () => {
     console.log(`S3 API running on port ${port}`);
 });
+app.get("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    res.send("S3 API up and running.");
+}));

@@ -61,3 +61,29 @@ spec:
           imagePullPolicy: Always
       imagePullSecrets:
         - name: regcredy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coyotes3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coyotes3
+  template:
+    metadata:
+      labels:
+        app: coyotes3
+    spec:
+      containers:
+        - name: db
+          image: peterheywood708/coyotes3:main
+          ports:
+            - containerPort: 3002
+          envFrom:
+            - configMapRef:
+                name: coyotes3-config
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: regcredy
