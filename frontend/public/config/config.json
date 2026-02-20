@@ -1,9 +1,9 @@
 {
-  "VITE_S3_ENDPOINT": "http://localhost:3002",
-  "VITE_DB_ENDPOINT": "http://localhost:3001",
-  "VITE_SQS_ENDPOINT": "http://localhost:3003",
-  "VITE_AWS_CLIENTID": "46f7p74qp752l43kgrlj8q29jg",
-  "VITE_AWS_AUTHORITY": "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_JNL3rksoP",
-  "VITE_AWS_REDIRECTURI": "http://localhost:8080/",
-  "VITE_AWS_COGNITODOMAIN": "https://eu-west-2jnl3rksop.auth.eu-west-2.amazoncognito.com"
+  "VITE_S3_ENDPOINT": null,
+  "VITE_DB_ENDPOINT": null,
+  "VITE_SQS_ENDPOINT": null,
+  "VITE_AWS_CLIENTID": null,
+  "VITE_AWS_AUTHORITY": null,
+  "VITE_AWS_REDIRECTURI": null,
+  "VITE_AWS_COGNITODOMAIN": null
 }
