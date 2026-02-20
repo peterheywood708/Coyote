@@ -83,3 +83,7 @@ app.get("/stream", async (req: Request, res: Response) => {
 app.listen(port, () => {
   console.log(`S3 API running on port ${port}`);
 });
+
+app.get("/", async (req: Request, res: Response) => {
+  res.send("S3 API up and running.");
+});

@@ -77,7 +77,7 @@ app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                     fileName: (_b = req.body) === null || _b === void 0 ? void 0 : _b.fileName,
                     status: (_c = req.body) === null || _c === void 0 ? void 0 : _c.status,
                     sqsId: null,
-                    userId: payload === null || payload === void 0 ? void 0 : payload.username,
+                    userId: payload === null || payload === void 0 ? void 0 : payload.sub,
                     date: Date.now(),
                 };
                 const p = yield col.insertOne(transcriptDocument);
@@ -112,14 +112,14 @@ app.post("/delete", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                 const col = db.collection("jobs");
                 const p = yield col.findOneAndDelete({
                     _id: mongodb_1.ObjectId.createFromHexString((_a = req.body) === null || _a === void 0 ? void 0 : _a.id),
-                    userId: payload === null || payload === void 0 ? void 0 : payload.username,
+                    userId: payload === null || payload === void 0 ? void 0 : payload.sub,
                 });
                 // If the record is linked to a transcript, then delete this as well
                 if ((p === null || p === void 0 ? void 0 : p.transcriptId) && (p === null || p === void 0 ? void 0 : p.status) == 2) {
                     const transcriptCol = db.collection("transcripts");
                     yield transcriptCol.deleteOne({
                         _id: mongodb_1.ObjectId.createFromHexString(p === null || p === void 0 ? void 0 : p.transcriptId),
-                        userId: payload === null || payload === void 0 ? void 0 : payload.username,
+                        userId: payload === null || payload === void 0 ? void 0 : payload.sub,
                     });
                 }
                 // Send response back to frontend
@@ -276,7 +276,7 @@ app.get("/gettranscript", (req, res) => __awaiter(void 0, void 0, void 0, functi
                     const db = yield client.db("coyote");
                     const document = yield db.collection("transcripts").findOne({
                         _id: mongodb_1.ObjectId.createFromHexString(req.header("transcriptid") || ""),
-                        userId: payload === null || payload === void 0 ? void 0 : payload.username,
+                        userId: payload === null || payload === void 0 ? void 0 : payload.sub,
                     });
                     res.send(document);
                 }
