@@ -62,6 +62,7 @@ data:
       server_name _;
       root /usr/share/nginx/html;
       index index.html;
+      client_max_body_size 100M;
       location /db/ { proxy_pass http://coyotedb-service:3001/; }
       location /s3/ { proxy_pass http://coyotes3-service:3002/; }
       location /sqs/ { proxy_pass http://coyotesqs-service:3003/; }

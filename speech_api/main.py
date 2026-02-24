@@ -3,7 +3,6 @@ from pydub import AudioSegment
 from openai import OpenAI
 import requests
 import os
-import torch
 import json
 import schedule
 import time
@@ -36,7 +35,7 @@ print(f"[{datetime.datetime.now()}] Starting Python speech")
 client = OpenAI()
 
 pipeline = Pipeline.from_pretrained(
-    "pyannote/speaker-diarization-3.1",
+    "pyannote/speaker-diarization-community-1",
     token=os.getenv('TOKEN'))
 
 # Function to start diarization once file is downloaded from s3
