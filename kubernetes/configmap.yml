@@ -7,7 +7,7 @@ data:
     {
       "VITE_S3_ENDPOINT": "/s3/",
       "VITE_DB_ENDPOINT": "/db/",
-      "VITE_SQS_ENDPOINT": "http://localhost:3003",
+      "VITE_SQS_ENDPOINT": "http://coyotesqs-service:3003/",
       "VITE_AWS_CLIENTID": "46f7p74qp752l43kgrlj8q29jg",
       "VITE_AWS_AUTHORITY": "https://cognito-idp.eu-west-2.amazonaws.com/eu-west-2_JNL3rksoP",
       "VITE_AWS_REDIRECTURI": "http://localhost:8080/",
@@ -68,3 +68,14 @@ data:
       location /sqs/ { proxy_pass http://coyotesqs-service:3003/; }
       location / { try_files $uri $uri/ /index.html; }
     }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coyotespeech-config
+data:
+  TOKEN: "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"
+  SQS_API: "http://coyotesqs-service:3003"
+  S3_API: "http://coyotes3-service:3002"
+  OPENAI_API_KEY: "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"
+  DB_HOST: "http://coyotedb-service:3001"

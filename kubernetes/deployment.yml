@@ -77,7 +77,7 @@ spec:
         app: coyotes3
     spec:
       containers:
-        - name: db
+        - name: s3
           image: peterheywood708/coyotes3:main
           ports:
             - containerPort: 3002
@@ -103,13 +103,38 @@ spec:
         app: coyotesqs
     spec:
       containers:
-        - name: db
+        - name: sqs
           image: peterheywood708/coyotesqs:main
           ports:
             - containerPort: 3003
           envFrom:
             - configMapRef:
                 name: coyotesqs-config
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: regcredy
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coyotespeech
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: coyotespeech
+  template:
+    metadata:
+      labels:
+        app: coyotespeech
+    spec:
+      containers:
+        - name: speech
+          image: peterheywood708/coyotespeech:main
+          envFrom:
+            - configMapRef:
+                name: coyotespeech-config
           imagePullPolicy: Always
       imagePullSecrets:
         - name: regcredy
