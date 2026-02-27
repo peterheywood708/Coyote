@@ -400,3 +400,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 kubernetes/configmap.yml
+frontend/public/config/config.json

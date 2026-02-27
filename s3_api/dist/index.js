@@ -120,6 +120,30 @@ app.get("/stream", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         res.status(400).send("No key provided");
     }
 }));
+app.get("/retrieve", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const key = req.header("key") || "";
+    if (key) {
+        const params = {
+            Bucket: process.env.S3_BUCKETNAME || "",
+            Key: key,
+        };
+        try {
+            const signedUrlExpireSeconds = 3600;
+            const url = yield s3.getSignedUrl("getObject", {
+                Bucket: params.Bucket,
+                Key: params.Key,
+                Expires: signedUrlExpireSeconds,
+            });
+            res.send(url);
+        }
+        catch (err) {
+            res.status(400).send(err);
+        }
+    }
+    else {
+        res.status(400).send("No key provided");
+    }
+}));
 app.listen(port, () => {
     console.log(`S3 API running on port ${port}`);
 });

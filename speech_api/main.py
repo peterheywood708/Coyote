@@ -31,7 +31,6 @@ if not os.path.exists(inFolder):
     os.makedirs(inFolder)
 
 print(f"[{datetime.datetime.now()}] Starting Python speech")
-
 client = OpenAI()
 
 pipeline = Pipeline.from_pretrained(
@@ -95,17 +94,20 @@ def checkMessages():
         session = requests.Session()
 
         # Download file from S3
+        print(key)
         s3Res = session.get(os.getenv('S3_API')+'/retrieve', headers={'Content-Type': 'application/json','Key': key})
+        print(f"[{datetime.datetime.now()}] {s3Res.text}")
         if not s3Res.text:
             print(f"[{datetime.datetime.now()}] Unable to retrieve file URL from S3 using key {key}")
             updateJob(jobId, -1, None)
             return
         print(f"[{datetime.datetime.now()}] Downloading {key} from {s3Res.text}")
         inFile = downloadFile(s3Res.text, key)
-        print(f"[{datetime.datetime.now()}] {key} downloaded to {inFile}")
         if not inFile:
             updateJob(jobId, -1, None)
+            print(f"[{datetime.datetime.now()}] {key} failed to download from s3 api")
             return
+        print(f"[{datetime.datetime.now()}] {key} downloaded to {inFile}")
         
         # Update the job record to in progress
         if(updateJob(jobId, 1, '')):
@@ -174,7 +176,9 @@ def updateJob(jobId, status, transcriptId):
 # Function to download file from S3 API service
 def downloadFile(url, key):
     response = requests.get(url)
-    if not response.ok:
+    print(f"{response.status_code}")
+    if not response.status_code == 200:
+        print(f"[{datetime.datetime.now()}] {response.status_code} : {response.text}")
         return
     path = os.path.join(inFolder,key)
     try:

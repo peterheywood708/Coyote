@@ -54,6 +54,7 @@ const AccordionComponent = ({
               &nbsp;&nbsp;&nbsp;
               {fileName.replace(".mp3", "").replace(".wav", "")}
             </h4>
+            {status == -1 ? <Badge color="red">Job failed</Badge> : null}
             {status == 0 ? <Badge color="yellow">Pending</Badge> : null}
             {status == 1 ? <Badge color="blue">In progress</Badge> : null}
             {status == 2 ? <Badge color="green">Completed</Badge> : null}
