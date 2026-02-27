@@ -66,6 +66,29 @@ const s3 = new aws_sdk_1.default.S3({
     signatureVersion: "v4",
     region: process.env.AWS_REGION,
 });
+app.post("/delete", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (req.query.key) {
+            const params = {
+                Bucket: process.env.S3_BUCKETNAME || "",
+                Key: req.query.key,
+            };
+            try {
+                yield s3.deleteObject(params);
+            }
+            catch (err) {
+                res.status(400).send(err);
+            }
+            res.send(`${req.query.key} deleted`);
+        }
+        else {
+            res.status(400).send("No key provided");
+        }
+    }
+    catch (err) {
+        res.status(401).send(err);
+    }
+}));
 app.post("/upload", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {

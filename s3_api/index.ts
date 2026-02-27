@@ -28,6 +28,33 @@ interface IData {
   Location: string;
 }
 
+app.post("/delete", async (req: Request, res: Response) => {
+  try {
+    const token: string = req.header("authorization") || "";
+    const payload = await verifier.verify(token);
+    if (payload) {
+      if (req.query.key) {
+        const params = {
+          Bucket: process.env.S3_BUCKETNAME || "",
+          Key: req.query.key as string,
+        };
+        try {
+          await s3.deleteObject(params);
+        } catch (err) {
+          res.status(400).send(err);
+        }
+        res.send(`${req.query.key} deleted`);
+      } else {
+        res.status(400).send("No key provided");
+      }
+    } else {
+      res.status(400).send("No authorisation token provided");
+    }
+  } catch (err) {
+    res.status(401).send(err);
+  }
+});
+
 app.post("/upload", async (req: Request, res: Response) => {
   try {
     const token: string = req.header("authorization") || "";

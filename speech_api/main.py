@@ -146,6 +146,8 @@ def checkMessages():
 
     except Exception as error:
         print(f"[{datetime.datetime.now()}] {error}")
+        updateJob(jobId, -1, None)
+
 
 # Function to save transcript to database
 def saveTranscript(jsonBody):
