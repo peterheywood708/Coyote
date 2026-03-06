@@ -276,7 +276,7 @@ app.get("/gettranscript", (req, res) => __awaiter(void 0, void 0, void 0, functi
                     const db = yield client.db("coyote");
                     const document = yield db.collection("transcripts").findOne({
                         _id: mongodb_1.ObjectId.createFromHexString(req.header("transcriptid") || ""),
-                        userId: payload === null || payload === void 0 ? void 0 : payload.sub,
+                        userId: payload === null || payload === void 0 ? void 0 : payload.username,
                     });
                     res.send(document);
                 }

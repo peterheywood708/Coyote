@@ -68,21 +68,29 @@ const s3 = new aws_sdk_1.default.S3({
 });
 app.post("/delete", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (req.query.key) {
-            const params = {
-                Bucket: process.env.S3_BUCKETNAME || "",
-                Key: req.query.key,
-            };
-            try {
-                yield s3.deleteObject(params);
+        const token = req.header("authorization") || "";
+        const payload = yield verifier.verify(token);
+        if (payload) {
+            if (req.query.key) {
+                const params = {
+                    Bucket: process.env.S3_BUCKETNAME || "",
+                    Key: req.query.key,
+                };
+                s3.deleteObject(params, function (err, data) {
+                    if (err) {
+                        console.log(err, err.stack);
+                        res.status(400).send(err);
+                    }
+                    else
+                        res.send(`${req.query.key} deleted`);
+                });
             }
-            catch (err) {
-                res.status(400).send(err);
+            else {
+                res.status(400).send("No key provided");
             }
-            res.send(`${req.query.key} deleted`);
         }
         else {
-            res.status(400).send("No key provided");
+            res.status(400).send("No authorisation token provided");
         }
     }
     catch (err) {

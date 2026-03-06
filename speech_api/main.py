@@ -34,8 +34,8 @@ print(f"[{datetime.datetime.now()}] Starting Python speech")
 client = OpenAI()
 
 pipeline = Pipeline.from_pretrained(
-    "pyannote/speaker-diarization-community-1",
-    token=os.getenv('TOKEN'))
+    "pyannote/speaker-diarization-3.1",
+    use_auth_token=os.getenv('TOKEN'))
 
 # Function to start diarization once file is downloaded from s3
 def startDiarization(file, userId, jobId):
@@ -45,7 +45,7 @@ def startDiarization(file, userId, jobId):
         # Use Pydub to split the audio from speaker start and end
         clipStart = int(turn.start * 1000)
         clipEnd = int(turn.end * 1000)
-        audioFile = AudioSegment.from_file(file)
+        audioFile = AudioSegment.from_file(file,close=True)
 
         # Create a temporary name for our spliced audio
         clipFileName = f"{workFolder}\\{clipStart}_{clipEnd}.mp3"
@@ -62,10 +62,7 @@ def startDiarization(file, userId, jobId):
             # Add the transcription and diarizations to our array ready to send to database table
             diarizationTranscriptions.append(Diarization(speaker=speaker, text=transcription.text, start=clipStart, end=clipEnd))
         except Exception:
-            print(Exception) 
-        finally:
-            clipToTranscribe.close()
-            os.remove(clipFileName)
+            print(f"[{datetime.datetime.now()}] {Exception}") 
     return json.dumps({"userId":userId,"jobId":jobId,"diarizations":[Diarization.__dict__ for Diarization in diarizationTranscriptions]})
 
 # Function to check for new messages from AWS SQS
@@ -100,11 +97,13 @@ def checkMessages():
         if not s3Res.text:
             print(f"[{datetime.datetime.now()}] Unable to retrieve file URL from S3 using key {key}")
             updateJob(jobId, -1, None)
+            deleteMessage(receiptHandle, messageId)
             return
         print(f"[{datetime.datetime.now()}] Downloading {key} from {s3Res.text}")
         inFile = downloadFile(s3Res.text, key)
         if not inFile:
             updateJob(jobId, -1, None)
+            deleteMessage(receiptHandle, messageId)
             print(f"[{datetime.datetime.now()}] {key} failed to download from s3 api")
             return
         print(f"[{datetime.datetime.now()}] {key} downloaded to {inFile}")
@@ -113,41 +112,47 @@ def checkMessages():
         if(updateJob(jobId, 1, '')):
             print(f"[{datetime.datetime.now()}] Job record set to in progress")
         else:
-            print(f"[{datetime.datetime.now()}] Unable to set ")
+            print(f"[{datetime.datetime.now()}] Unable to update job record")
 
         # Call our diarizations functions to start splicing and transcribing speakers
         diarizations = startDiarization(inFile, userId, jobId)
 
+        # Delete our downloaded file from S3
+        os.remove(inFile)
+
         # Finally save the transcriptions to the db
+        print(f"[{datetime.datetime.now()}] Saving transcripts to db...")
         transcript = saveTranscript(diarizations)
+        print(f"Transcript ID: {transcript['insertedId']}")
         if(transcript['insertedId']):
             if(updateJob(jobId, 2, transcript['insertedId'])):
-                print("Job record updated")
+                print(f"[{datetime.datetime.now()}] Transcript saved and job updated")
             else:
-                print("Unable to update job record")
+                print(f"[{datetime.datetime.now()}] Transcript saved but unable to update job status")
         else:
             if(updateJob(jobId, -1)):
                 print(f"[{datetime.datetime.now()}] Job record {jobId} updated")
             else:
                 print(f"[{datetime.datetime.now()}] Unable to update job record {jobId}")
             print(f"[{datetime.datetime.now()}] Transcript was not saved to database")
-
-        # Delete the file from S3 bucket
-        inFile.close()
-        os.remove(inFile)
-
-        # Delete message from SQS
-        print(f"[{datetime.datetime.now()}] Deleting ${messageId}")
-        headers = {'Content-Type': 'application/json'}
-        try:
-            sqsDelete = session.post(os.getenv('S3_API')+'/delete', data={'ReceiptHandle':receiptHandle}, headers=headers)
-        except Exception as err:
-            print(f"[{datetime.datetime.now()}] {err}")
-
     except Exception as error:
         print(f"[{datetime.datetime.now()}] {error}")
         updateJob(jobId, -1, None)
 
+    # Delete message from SQS
+    try:
+        deleteMessage(receiptHandle, messageId)
+    except Exception as error:
+        print(f"[{datetime.datetime.now()}] {error}")
+
+    # Cleanup all local files
+    try:
+        for file in os.listdir('in'):
+            os.remove(file)
+        for file in os.listdir('work'):
+            os.remove(file)
+    except Exception as error:
+        print(f"[{datetime.datetime.now()}] {error}")
 
 # Function to save transcript to database
 def saveTranscript(jsonBody):
@@ -174,6 +179,16 @@ def updateJob(jobId, status, transcriptId):
     except Exception as err:
         print(f"[{datetime.datetime.now()}] {err}")
         return False
+
+# Delete SQS message
+def deleteMessage(receiptHandle, messageId):
+    session = requests.Session()
+    print(f"[{datetime.datetime.now()}] Deleting message {messageId}")
+    headers = {'Content-Type': 'application/json'}
+    try:
+        session.post(os.getenv('S3_API')+'/delete', data={'ReceiptHandle':receiptHandle}, headers=headers)
+    except Exception as err:
+        print(f"[{datetime.datetime.now()}] {err}")  
 
 # Function to download file from S3 API service
 def downloadFile(url, key):

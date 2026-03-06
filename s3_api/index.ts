@@ -38,12 +38,12 @@ app.post("/delete", async (req: Request, res: Response) => {
           Bucket: process.env.S3_BUCKETNAME || "",
           Key: req.query.key as string,
         };
-        try {
-          await s3.deleteObject(params);
-        } catch (err) {
-          res.status(400).send(err);
-        }
-        res.send(`${req.query.key} deleted`);
+        s3.deleteObject(params, function (err, data) {
+          if (err) {
+            console.log(err, err.stack);
+            res.status(400).send(err);
+          } else res.send(`${req.query.key} deleted`);
+        });
       } else {
         res.status(400).send("No key provided");
       }

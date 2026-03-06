@@ -221,7 +221,7 @@ app.get("/gettranscript", async (req: Request, res: Response) => {
           const db: Db = await client.db("coyote");
           const document = await db.collection("transcripts").findOne({
             _id: ObjectId.createFromHexString(req.header("transcriptid") || ""),
-            userId: payload?.sub,
+            userId: payload?.username,
           });
           res.send(document);
         } catch (err) {
