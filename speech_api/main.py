@@ -117,9 +117,6 @@ def checkMessages():
         # Call our diarizations functions to start splicing and transcribing speakers
         diarizations = startDiarization(inFile, userId, jobId)
 
-        # Delete our downloaded file from S3
-        os.remove(inFile)
-
         # Finally save the transcriptions to the db
         print(f"[{datetime.datetime.now()}] Saving transcripts to db...")
         transcript = saveTranscript(diarizations)
