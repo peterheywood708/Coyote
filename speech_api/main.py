@@ -8,6 +8,9 @@ import schedule
 import time
 import datetime
 from pyannote.audio import Pipeline
+# Suppress non-critical warnings from Pytorch
+import warnings
+warnings.filterwarnings("ignore")
 
 #Load variables from .env
 load_dotenv()
@@ -45,7 +48,7 @@ def startDiarization(file, userId, jobId):
         # Use Pydub to split the audio from speaker start and end
         clipStart = int(turn.start * 1000)
         clipEnd = int(turn.end * 1000)
-        audioFile = AudioSegment.from_file(file,close=True)
+        audioFile = AudioSegment.from_file(file)
 
         # Create a temporary name for our spliced audio
         clipFileName = f"{workFolder}\\{clipStart}_{clipEnd}.mp3"
@@ -61,6 +64,7 @@ def startDiarization(file, userId, jobId):
 
             # Add the transcription and diarizations to our array ready to send to database table
             diarizationTranscriptions.append(Diarization(speaker=speaker, text=transcription.text, start=clipStart, end=clipEnd))
+            clipToTranscribe.close()
         except Exception:
             print(f"[{datetime.datetime.now()}] {Exception}") 
     return json.dumps({"userId":userId,"jobId":jobId,"diarizations":[Diarization.__dict__ for Diarization in diarizationTranscriptions]})
@@ -143,13 +147,18 @@ def checkMessages():
         print(f"[{datetime.datetime.now()}] {error}")
 
     # Cleanup all local files
-    try:
-        for file in os.listdir('in'):
-            os.remove(file)
-        for file in os.listdir('work'):
-            os.remove(file)
-    except Exception as error:
-        print(f"[{datetime.datetime.now()}] {error}")
+    for file in os.listdir('in'):
+        try:
+            print(f"[{datetime.datetime.now()}] Deleting {file}")
+            os.remove('in/'+file)
+        except Exception as error:
+            print(f"[{datetime.datetime.now()}] Unable to delete {file}")
+    for file in os.listdir('work'):
+        try:
+            print(f"[{datetime.datetime.now()}] Deleting {file}")
+            os.remove('work/'+file)
+        except Exception as error:
+            print(f"[{datetime.datetime.now()}] Unable to delete {file}")
 
 # Function to save transcript to database
 def saveTranscript(jsonBody):

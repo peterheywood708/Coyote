@@ -68,11 +68,11 @@ app.post("/delete", async (req: Request, res: Response) => {
         });
 
         // If the record is linked to a transcript, then delete this as well
-        if (p?.transcriptId && p?.status == 2) {
+        if (p?.transcriptId) {
+          console.log(`Deleting ${p?.transcriptId}`);
           const transcriptCol: Collection = db.collection("transcripts");
           await transcriptCol.deleteOne({
             _id: ObjectId.createFromHexString(p?.transcriptId),
-            userId: payload?.sub,
           });
         }
 
@@ -138,6 +138,7 @@ app.post("/newtranscript", async (req: Request, res: Response) => {
         userId: req.body?.userId,
         jobId: req.body?.jobId,
         diarizations: req.body?.diarizations,
+        created: Date.now(),
       };
       const p = await col.insertOne(transcriptDocument);
       res.send(p);

@@ -115,11 +115,11 @@ app.post("/delete", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
                     userId: payload === null || payload === void 0 ? void 0 : payload.sub,
                 });
                 // If the record is linked to a transcript, then delete this as well
-                if ((p === null || p === void 0 ? void 0 : p.transcriptId) && (p === null || p === void 0 ? void 0 : p.status) == 2) {
+                if (p === null || p === void 0 ? void 0 : p.transcriptId) {
+                    console.log(`Deleting ${p === null || p === void 0 ? void 0 : p.transcriptId}`);
                     const transcriptCol = db.collection("transcripts");
                     yield transcriptCol.deleteOne({
                         _id: mongodb_1.ObjectId.createFromHexString(p === null || p === void 0 ? void 0 : p.transcriptId),
-                        userId: payload === null || payload === void 0 ? void 0 : payload.sub,
                     });
                 }
                 // Send response back to frontend
@@ -186,6 +186,7 @@ app.post("/newtranscript", (req, res) => __awaiter(void 0, void 0, void 0, funct
                 userId: (_a = req.body) === null || _a === void 0 ? void 0 : _a.userId,
                 jobId: (_b = req.body) === null || _b === void 0 ? void 0 : _b.jobId,
                 diarizations: (_c = req.body) === null || _c === void 0 ? void 0 : _c.diarizations,
+                created: Date.now(),
             };
             const p = yield col.insertOne(transcriptDocument);
             res.send(p);
