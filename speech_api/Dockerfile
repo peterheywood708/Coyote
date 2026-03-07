@@ -1,4 +1,4 @@
-FROM python:3.13-slim as build
+FROM python:3.13-slim AS build
 RUN apt-get update \
     && apt-get install -y \
     linux-headers-generic\
@@ -7,7 +7,8 @@ RUN apt-get update \
     gfortran \
     musl-dev \
     libffi-dev \
-    git
+    git \
+    ffmpeg
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 FROM build AS build-venv
