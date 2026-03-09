@@ -16,4 +16,4 @@ COPY requirements.txt ./
 RUN pip install --disable-pip-version-check -r requirements.txt && \
     pip cache purge
 COPY . .
-CMD [ "python", "./main.py" ]
+CMD [ "python", "-u","./main.py" ]
