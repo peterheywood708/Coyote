@@ -55,9 +55,27 @@ spec:
           image: peterheywood708/coyotedb:main
           ports:
             - containerPort: 3001
-          envFrom:
-            - configMapRef:
-                name: coyotedb-config
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: coyotedb-config
+                  key: PORT
+            - name: URI
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-db
+                  key: uri
+            - name: COGNITO_USERPOOLID
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-db
+                  key: userpoolid
+            - name: COGNITO_CLIENTID
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-db
+                  key: clientid
           imagePullPolicy: Always
       imagePullSecrets:
         - name: regcredy
@@ -81,9 +99,42 @@ spec:
           image: peterheywood708/coyotes3:main
           ports:
             - containerPort: 3002
-          envFrom:
-            - configMapRef:
-                name: coyotes3-config
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: coyotes3-config
+                  key: PORT
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: coyotes3-config
+                  key: AWS_REGION
+            - name: S3_ACCESSKEY
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-s3
+                  key: accesskey
+            - name: S3_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-s3
+                  key: secret
+            - name: S3_BUCKETNAME
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-s3
+                  key: bucketname
+            - name: COGNITO_USERPOOLID
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-s3
+                  key: userpoolid
+            - name: COGNITO_CLIENTID
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-s3
+                  key: clientid
           imagePullPolicy: Always
       imagePullSecrets:
         - name: regcredy
@@ -107,9 +158,47 @@ spec:
           image: peterheywood708/coyotesqs:main
           ports:
             - containerPort: 3003
-          envFrom:
-            - configMapRef:
-                name: coyotesqs-config
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: coyotesqs-config
+                  key: PORT
+            - name: AWS_REGION
+              valueFrom:
+                configMapKeyRef:
+                  name: coyotesqs-config
+                  key: AWS_REGION
+            - name: API_VERSION
+              valueFrom:
+                configMapKeyRef:
+                  name: coyotesqs-config
+                  key: API_VERSION
+            - name: COGNITO_USERPOOLID
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-sqs
+                  key: userpoolid
+            - name: COGNITO_CLIENTID
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-sqs
+                  key: clientid
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-sqs
+                  key: accesskey
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-sqs
+                  key: secret
+            - name: AWS_QUEUE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-sqs
+                  key: queue
           imagePullPolicy: Always
       imagePullSecrets:
         - name: regcredy
@@ -132,9 +221,32 @@ spec:
       containers:
         - name: speech
           image: peterheywood708/coyotespeech:main
-          envFrom:
-            - configMapRef:
-                name: coyotespeech-config
+          env:
+            - name: SQS_API
+              valueFrom:
+                configMapKeyRef:
+                  name: coyotespeech-config
+                  key: SQS_API
+            - name: S3_API
+              valueFrom:
+                configMapKeyRef:
+                  name: coyotespeech-config
+                  key: S3_API
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: coyotespeech-config
+                  key: DB_HOST
+            - name: TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-speech
+                  key: token
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: external-secret-speech
+                  key: openapikey
           imagePullPolicy: Always
       imagePullSecrets:
         - name: regcredy
