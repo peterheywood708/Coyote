@@ -400,3 +400,7 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 frontend/public/config/config.json
+
+# Audiofiles
+*.wav
+*.mp3

@@ -28,7 +28,7 @@ class UpdateProgress:
             subtotal = total+1
             percentage = int(round(completed / subtotal * 100,0))
             updateJob(self.jobId, 1, '',percentage)
-            print(f"Progress for {file.uri}: {int(round(completed / subtotal * 100,0))}%")
+            print(f"Progress for {file}: {int(round(completed / subtotal * 100,0))}%")
     
 # Our class for diarizations
 class Diarization:

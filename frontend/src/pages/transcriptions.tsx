@@ -5,9 +5,10 @@ import {
   Loader,
   Accordion,
   Container,
+  Button,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { FaCircleInfo } from "react-icons/fa6";
+import { FaCircleInfo, FaArrowsRotate } from "react-icons/fa6";
 import { useAuth } from "react-oidc-context";
 import AccordionComponent from "../components/accordioncomponent";
 const config = await fetch("/config/config.json").then((res) => res.json());
@@ -27,26 +28,27 @@ const Transcriptions = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const auth = useAuth();
 
+  const getDocuments = async () => {
+    setLoading(true);
+    try {
+      const documents = await fetch(`${config.VITE_DB_ENDPOINT}/list`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: auth.user?.access_token || "",
+        },
+      });
+      const transcriptions = await documents.json();
+      setTranscripts(transcriptions);
+      setLoading(false);
+    } catch (err) {
+      setFetchError(true);
+      console.warn(err);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const getDocuments = async () => {
-      setLoading(true);
-      try {
-        const documents = await fetch(`${config.VITE_DB_ENDPOINT}/list`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: auth.user?.access_token || "",
-          },
-        });
-        const transcriptions = await documents.json();
-        setTranscripts(transcriptions);
-        setLoading(false);
-      } catch (err) {
-        setFetchError(true);
-        console.warn(err);
-        setLoading(false);
-      }
-    };
     if (!transcripts && auth.user?.access_token) {
       getDocuments();
     }
@@ -62,7 +64,19 @@ const Transcriptions = () => {
         <>
           {" "}
           <Text ta="left">
-            A list of your existing transcriptions can be found below.
+            <Button onClick={() => getDocuments()} variant="default">
+              <FaArrowsRotate />
+            </Button>
+            <br />
+            {(transcripts?.length ?? 0 > 0) ? (
+              <></>
+            ) : (
+              <>
+                <br />
+                There are currently no transcriptions.{" "}
+                <a href="/">Click here to start transcribing a file</a>
+              </>
+            )}
           </Text>
           <Space h="md"></Space>
           <Accordion style={{ width: "600px" }} variant="separated">
