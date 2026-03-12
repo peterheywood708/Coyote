@@ -7,6 +7,7 @@ import json
 import schedule
 import time
 import datetime
+import numbers
 from pyannote.audio import Pipeline
 # Suppress non-critical warnings from Pytorch
 import warnings
@@ -18,6 +19,17 @@ load_dotenv()
 workFolder = 'work'
 inFolder = 'in'
 
+# Class for pyannote hook
+class UpdateProgress:
+    def __init__(self, jobId):
+        self.jobId = jobId
+    def __call__(self, step_name, step_artifact, file = None, total = None, completed = None):
+        if(step_name=="embeddings" and isinstance(total, int)):
+            subtotal = total+1
+            percentage = int(round(completed / subtotal * 100,0))
+            updateJob(self.jobId, 1, '',percentage)
+            print(f"Progress for {file.uri}: {int(round(completed / subtotal * 100,0))}%")
+    
 # Our class for diarizations
 class Diarization:
     def __init__(self, speaker, text, start, end):
@@ -43,7 +55,8 @@ pipeline = Pipeline.from_pretrained(
 # Function to start diarization once file is downloaded from s3
 def startDiarization(file, userId, jobId):
     diarizationTranscriptions = []
-    diarization = pipeline(file)
+    hook = UpdateProgress(jobId)
+    diarization = pipeline(file, hook=hook)
     for turn, _,speaker in diarization.itertracks(yield_label=True):
         # Use Pydub to split the audio from speaker start and end
         clipStart = int(turn.start * 1000)
@@ -174,10 +187,10 @@ def saveTranscript(jsonBody):
         return False
 
 # Function to update job record status and populate transcript table id
-def updateJob(jobId, status, transcriptId):
+def updateJob(jobId, status, transcriptId, percentage=None):
     headers = {'Content-Type': 'application/json'}
     try:
-        response = requests.post(f"{os.getenv('DB_HOST')}/updatestatus", json={"jobId": jobId, "status": status, "transcriptId": transcriptId}, headers=headers)
+        response = requests.post(f"{os.getenv('DB_HOST')}/updatestatus", json={"jobId": jobId, "status": status, "transcriptId": transcriptId, "percentage":percentage}, headers=headers)
         if response.ok:
             return True
         else:
@@ -211,7 +224,11 @@ def downloadFile(url, key):
     except Exception as err:
         print(f"[{datetime.datetime.now()}] {err}")
         return
-
+    
+def checkProgress():
+    with ProgressHook as hook:
+        print(f"[{datetime.datetime.now()}] {hook}")
+        print(f"Update test")
 schedule.every(10).seconds.do(checkMessages)
 
 while True:

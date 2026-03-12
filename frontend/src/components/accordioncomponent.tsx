@@ -1,4 +1,4 @@
-import { Accordion, Badge, Button } from "@mantine/core";
+import { Accordion, Badge, Button, Progress, Text } from "@mantine/core";
 import { FaMusic, FaRegCalendar, FaRegTrashCan } from "react-icons/fa6";
 import { useState } from "react";
 import { Loader } from "@mantine/core";
@@ -11,6 +11,7 @@ type AccordianProps = {
   date: Date;
   token: string;
   status: number;
+  percentageComplete: number;
 };
 
 const AccordionComponent = ({
@@ -19,6 +20,7 @@ const AccordionComponent = ({
   date,
   token,
   status,
+  percentageComplete,
 }: AccordianProps) => {
   const [hidden, setHidden] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -56,7 +58,18 @@ const AccordionComponent = ({
             </h4>
             {status == -1 ? <Badge color="red">Job failed</Badge> : null}
             {status == 0 ? <Badge color="yellow">Pending</Badge> : null}
-            {status == 1 ? <Badge color="blue">In progress</Badge> : null}
+            {status == 1 ? (
+              <>
+                <Text fz="xs" c="dimmed" mt={7}>
+                  Progress: {percentageComplete}%
+                </Text>
+                <Progress
+                  value={percentageComplete}
+                  mt={5}
+                  aria-label="Progress"
+                />
+              </>
+            ) : null}
             {status == 2 ? <Badge color="green">Completed</Badge> : null}
           </Accordion.Control>
           <Accordion.Panel ta="left">

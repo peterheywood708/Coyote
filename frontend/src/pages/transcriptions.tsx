@@ -18,6 +18,7 @@ type ITranscript = {
   date: Date;
   status: number;
   token: string;
+  percentageComplete: number;
 };
 
 const Transcriptions = () => {
@@ -75,6 +76,7 @@ const Transcriptions = () => {
                     status={i.status}
                     token={auth.user?.access_token || ""}
                     key={i._id}
+                    percentageComplete={i.percentageComplete}
                   />
                 );
               })}

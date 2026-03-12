@@ -100,7 +100,9 @@ app.post("/updatestatus", async (req: Request, res: Response) => {
       ", Status: " +
       req.body?.status +
       ", Transcript ID: " +
-      req.body?.transcriptId,
+      req.body?.transcriptId +
+      ", Percentage: " +
+      req.body?.percentage,
   );
   try {
     await client.connect();
@@ -113,6 +115,7 @@ app.post("/updatestatus", async (req: Request, res: Response) => {
           $set: {
             status: req.body?.status,
             transcriptId: req.body?.transcriptId,
+            percentageComplete: req.body?.percentage,
           },
         },
       );

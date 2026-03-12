@@ -143,22 +143,25 @@ app.post("/delete", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 }));
 app.post("/updatestatus", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     console.log("New request received - Job ID: " +
         ((_a = req.body) === null || _a === void 0 ? void 0 : _a.jobId) +
         ", Status: " +
         ((_b = req.body) === null || _b === void 0 ? void 0 : _b.status) +
         ", Transcript ID: " +
-        ((_c = req.body) === null || _c === void 0 ? void 0 : _c.transcriptId));
+        ((_c = req.body) === null || _c === void 0 ? void 0 : _c.transcriptId) +
+        ", Percentage: " +
+        ((_d = req.body) === null || _d === void 0 ? void 0 : _d.percentage));
     try {
         yield client.connect();
         const db = client.db("coyote");
         const col = db.collection("jobs");
-        if (((_d = req.body) === null || _d === void 0 ? void 0 : _d.status) && ((_e = req.body) === null || _e === void 0 ? void 0 : _e.status)) {
-            const p = yield col.updateOne({ _id: mongodb_1.ObjectId.createFromHexString((_f = req.body) === null || _f === void 0 ? void 0 : _f.jobId) }, {
+        if (((_e = req.body) === null || _e === void 0 ? void 0 : _e.status) && ((_f = req.body) === null || _f === void 0 ? void 0 : _f.status)) {
+            const p = yield col.updateOne({ _id: mongodb_1.ObjectId.createFromHexString((_g = req.body) === null || _g === void 0 ? void 0 : _g.jobId) }, {
                 $set: {
-                    status: (_g = req.body) === null || _g === void 0 ? void 0 : _g.status,
-                    transcriptId: (_h = req.body) === null || _h === void 0 ? void 0 : _h.transcriptId,
+                    status: (_h = req.body) === null || _h === void 0 ? void 0 : _h.status,
+                    transcriptId: (_j = req.body) === null || _j === void 0 ? void 0 : _j.transcriptId,
+                    percentageComplete: (_k = req.body) === null || _k === void 0 ? void 0 : _k.percentage,
                 },
             });
             res.send(p);
