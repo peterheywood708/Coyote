@@ -6,6 +6,7 @@ import {
   Accordion,
   Container,
   Button,
+  Title,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { FaCircleInfo, FaArrowsRotate } from "react-icons/fa6";
@@ -56,10 +57,12 @@ const Transcriptions = () => {
 
   return (
     <Container>
-      <Text size="xl">Transcriptions</Text>
+      <Title order={2} fw={400}>
+        Transcriptions
+      </Title>
       <Space h="md"></Space>
       {loading ? (
-        <Loader />
+        <Loader color="coyote" />
       ) : (
         <>
           {" "}

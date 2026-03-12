@@ -7,7 +7,7 @@ import {
   Alert,
   Space,
   Loader,
-  Text,
+  Title,
 } from "@mantine/core";
 import { FaCircleInfo } from "react-icons/fa6";
 import { useAuth } from "react-oidc-context";
@@ -122,7 +122,9 @@ const Upload = () => {
 
   return (
     <>
-      <Text size="xl">Upload audio</Text>
+      <Title order={2} fw={400}>
+        Upload audio
+      </Title>
 
       <Space h="md" />
       {!loading ? (
@@ -155,7 +157,7 @@ const Upload = () => {
               <Group justify="center">
                 <FileButton onChange={setFile} accept="audio/mp3,audio/wav">
                   {(props) => (
-                    <Button color="ocean-blue" {...props}>
+                    <Button color="coyote" {...props}>
                       Upload audio
                     </Button>
                   )}
@@ -171,7 +173,7 @@ const Upload = () => {
             <Space h="md" />
             <Group justify="center">
               <Button
-                color="ocean-blue"
+                color="coyote"
                 onClick={() => navigate("/transcriptions")}
               >
                 View transcriptions
