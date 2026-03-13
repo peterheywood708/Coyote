@@ -19,13 +19,18 @@ const verifier = CognitoJwtVerifier.create({
 const port: string = process.env.PORT || "3001";
 const client: MongoClient = new MongoClient(process.env.URI || "");
 
+try {
+  client.connect();
+} catch (err) {
+  console.warn(err);
+}
+
 app.post("/store", async (req: Request, res: Response) => {
   try {
     const token: string = req.header("authorization") || "";
     const payload = await verifier.verify(token);
     if (payload) {
       try {
-        await client.connect();
         const db: Db = client.db("coyote");
         const col: Collection = db.collection("jobs");
         const transcriptDocument: Object = {
@@ -41,8 +46,6 @@ app.post("/store", async (req: Request, res: Response) => {
       } catch (err) {
         console.log(err);
         res.status(400).send(err);
-      } finally {
-        await client.close();
       }
     } else {
       res.status(400).send("No authorisation token provided");
@@ -59,7 +62,6 @@ app.post("/delete", async (req: Request, res: Response) => {
     const payload = await verifier.verify(token);
     if (payload) {
       try {
-        await client.connect();
         const db: Db = client.db("coyote");
         const col: Collection = db.collection("jobs");
         const p = await col.findOneAndDelete({
@@ -81,8 +83,6 @@ app.post("/delete", async (req: Request, res: Response) => {
       } catch (err) {
         console.log(err);
         res.status(400).send(err);
-      } finally {
-        await client.close();
       }
     } else {
       res.status(400).send("No authorisation token provided");
@@ -105,7 +105,6 @@ app.post("/updatestatus", async (req: Request, res: Response) => {
       req.body?.percentage,
   );
   try {
-    await client.connect();
     const db: Db = client.db("coyote");
     const col: Collection = db.collection("jobs");
     if (req.body?.status && req.body?.status) {
@@ -126,15 +125,12 @@ app.post("/updatestatus", async (req: Request, res: Response) => {
   } catch (err) {
     console.warn(err);
     res.status(400).send(err);
-  } finally {
-    await client.close();
   }
 });
 
 app.post("/newtranscript", async (req: Request, res: Response) => {
   try {
     try {
-      await client.connect();
       const db: Db = client.db("coyote");
       const col: Collection = db.collection("transcripts");
       const transcriptDocument: Object = {
@@ -148,8 +144,6 @@ app.post("/newtranscript", async (req: Request, res: Response) => {
     } catch (err) {
       console.warn(err);
       res.status(400).send(err);
-    } finally {
-      await client.close();
     }
   } catch (err) {
     console.warn(err);
@@ -163,7 +157,6 @@ app.get("/list", async (req: Request, res: Response) => {
     const payload = await verifier.verify(token);
     if (payload) {
       try {
-        await client.connect();
         const db: Db = client.db("coyote");
         const documents = await db
           .collection("jobs")
@@ -174,8 +167,6 @@ app.get("/list", async (req: Request, res: Response) => {
       } catch (err) {
         console.warn(err);
         res.status(400).send(err);
-      } finally {
-        await client.close();
       }
     }
   } catch (err) {
@@ -191,7 +182,6 @@ app.get("/getjob", async (req: Request, res: Response) => {
       const payload = await verifier.verify(token);
       if (payload) {
         try {
-          await client.connect();
           const db: Db = client.db("coyote");
           const document = await db.collection("jobs").findOne({
             _id: ObjectId.createFromHexString(req.header("id") || ""),
@@ -201,8 +191,6 @@ app.get("/getjob", async (req: Request, res: Response) => {
         } catch (err) {
           console.warn(err);
           res.status(400).send(err);
-        } finally {
-          await client.close();
         }
       }
     } else {
@@ -221,7 +209,6 @@ app.get("/gettranscript", async (req: Request, res: Response) => {
       const payload = await verifier.verify(token);
       if (payload) {
         try {
-          await client.connect();
           const db: Db = await client.db("coyote");
           const document = await db.collection("transcripts").findOne({
             _id: ObjectId.createFromHexString(req.header("transcriptid") || ""),
@@ -231,8 +218,6 @@ app.get("/gettranscript", async (req: Request, res: Response) => {
         } catch (err) {
           console.warn(err);
           res.status(400).send(err);
-        } finally {
-          await client.close();
         }
       }
     } else {

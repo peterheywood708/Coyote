@@ -62,6 +62,12 @@ const verifier = aws_jwt_verify_1.CognitoJwtVerifier.create({
 });
 const port = process.env.PORT || "3001";
 const client = new mongodb_1.MongoClient(process.env.URI || "");
+try {
+    client.connect();
+}
+catch (err) {
+    console.warn(err);
+}
 app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     try {
@@ -69,7 +75,6 @@ app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const payload = yield verifier.verify(token);
         if (payload) {
             try {
-                yield client.connect();
                 const db = client.db("coyote");
                 const col = db.collection("jobs");
                 const transcriptDocument = {
@@ -86,9 +91,6 @@ app.post("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             catch (err) {
                 console.log(err);
                 res.status(400).send(err);
-            }
-            finally {
-                yield client.close();
             }
         }
         else {
@@ -107,7 +109,6 @@ app.post("/delete", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const payload = yield verifier.verify(token);
         if (payload) {
             try {
-                yield client.connect();
                 const db = client.db("coyote");
                 const col = db.collection("jobs");
                 const p = yield col.findOneAndDelete({
@@ -128,9 +129,6 @@ app.post("/delete", (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             catch (err) {
                 console.log(err);
                 res.status(400).send(err);
-            }
-            finally {
-                yield client.close();
             }
         }
         else {
@@ -153,7 +151,6 @@ app.post("/updatestatus", (req, res) => __awaiter(void 0, void 0, void 0, functi
         ", Percentage: " +
         ((_d = req.body) === null || _d === void 0 ? void 0 : _d.percentage));
     try {
-        yield client.connect();
         const db = client.db("coyote");
         const col = db.collection("jobs");
         if (((_e = req.body) === null || _e === void 0 ? void 0 : _e.status) && ((_f = req.body) === null || _f === void 0 ? void 0 : _f.status)) {
@@ -174,15 +171,11 @@ app.post("/updatestatus", (req, res) => __awaiter(void 0, void 0, void 0, functi
         console.warn(err);
         res.status(400).send(err);
     }
-    finally {
-        yield client.close();
-    }
 }));
 app.post("/newtranscript", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c;
     try {
         try {
-            yield client.connect();
             const db = client.db("coyote");
             const col = db.collection("transcripts");
             const transcriptDocument = {
@@ -198,9 +191,6 @@ app.post("/newtranscript", (req, res) => __awaiter(void 0, void 0, void 0, funct
             console.warn(err);
             res.status(400).send(err);
         }
-        finally {
-            yield client.close();
-        }
     }
     catch (err) {
         console.warn(err);
@@ -213,7 +203,6 @@ app.get("/list", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const payload = yield verifier.verify(token);
         if (payload) {
             try {
-                yield client.connect();
                 const db = client.db("coyote");
                 const documents = yield db
                     .collection("jobs")
@@ -225,9 +214,6 @@ app.get("/list", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             catch (err) {
                 console.warn(err);
                 res.status(400).send(err);
-            }
-            finally {
-                yield client.close();
             }
         }
     }
@@ -243,7 +229,6 @@ app.get("/getjob", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             const payload = yield verifier.verify(token);
             if (payload) {
                 try {
-                    yield client.connect();
                     const db = client.db("coyote");
                     const document = yield db.collection("jobs").findOne({
                         _id: mongodb_1.ObjectId.createFromHexString(req.header("id") || ""),
@@ -254,9 +239,6 @@ app.get("/getjob", (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 catch (err) {
                     console.warn(err);
                     res.status(400).send(err);
-                }
-                finally {
-                    yield client.close();
                 }
             }
         }
@@ -276,7 +258,6 @@ app.get("/gettranscript", (req, res) => __awaiter(void 0, void 0, void 0, functi
             const payload = yield verifier.verify(token);
             if (payload) {
                 try {
-                    yield client.connect();
                     const db = yield client.db("coyote");
                     const document = yield db.collection("transcripts").findOne({
                         _id: mongodb_1.ObjectId.createFromHexString(req.header("transcriptid") || ""),
@@ -287,9 +268,6 @@ app.get("/gettranscript", (req, res) => __awaiter(void 0, void 0, void 0, functi
                 catch (err) {
                     console.warn(err);
                     res.status(400).send(err);
-                }
-                finally {
-                    yield client.close();
                 }
             }
         }

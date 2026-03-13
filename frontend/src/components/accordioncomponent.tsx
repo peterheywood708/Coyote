@@ -1,6 +1,6 @@
 import { Accordion, Badge, Button, Progress, Text } from "@mantine/core";
 import { FaMusic, FaRegCalendar, FaRegTrashCan } from "react-icons/fa6";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Loader } from "@mantine/core";
 import { useNavigate } from "react-router";
 const config = await fetch("/config/config.json").then((res) => res.json());
@@ -25,6 +25,8 @@ const AccordionComponent = ({
   const [hidden, setHidden] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [newPercentage, setNewPercentage] = useState(percentageComplete);
+  const [newStatus, setNewStatus] = useState(status);
 
   const deleteJob = async (id: string) => {
     setLoading(true);
@@ -46,6 +48,30 @@ const AccordionComponent = ({
     setHidden(true);
   };
 
+  useEffect(() => {
+    if (newStatus == 0 || newStatus == 1) {
+      const interval = setInterval(async () => {
+        try {
+          const getJob = await fetch(`${config.VITE_DB_ENDPOINT}/getjob`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              id: id,
+              Authorization: token || "",
+            },
+          });
+          getJob.json().then(async (job) => {
+            setNewPercentage(job?.percentageComplete);
+            setNewStatus(job?.status);
+          });
+        } catch (err) {
+          console.warn(err);
+        }
+      }, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [newStatus, newPercentage, setNewPercentage, setNewStatus, id, token]);
+
   return (
     <>
       {hidden ? null : (
@@ -56,21 +82,17 @@ const AccordionComponent = ({
               &nbsp;&nbsp;&nbsp;
               {fileName.replace(".mp3", "").replace(".wav", "")}
             </h4>
-            {status == -1 ? <Badge color="red">Job failed</Badge> : null}
-            {status == 0 ? <Badge color="yellow">Pending</Badge> : null}
-            {status == 1 ? (
+            {newStatus == -1 ? <Badge color="red">Job failed</Badge> : null}
+            {newStatus == 0 ? <Badge color="yellow">Pending</Badge> : null}
+            {newStatus == 1 ? (
               <>
                 <Text fz="xs" c="dimmed" mt={7}>
-                  Progress: {percentageComplete}%
+                  Progress: {newPercentage}%
                 </Text>
-                <Progress
-                  value={percentageComplete}
-                  mt={5}
-                  aria-label="Progress"
-                />
+                <Progress value={newPercentage} mt={5} aria-label="Progress" />
               </>
             ) : null}
-            {status == 2 ? <Badge color="green">Completed</Badge> : null}
+            {newStatus == 2 ? <Badge color="green">Completed</Badge> : null}
           </Accordion.Control>
           <Accordion.Panel ta="left">
             <FaRegCalendar /> &nbsp;Uploaded on{" "}
