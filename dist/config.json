@@ -1,0 +1,9 @@
+{
+  "VITE_S3_ENDPOINT": null,
+  "VITE_DB_ENDPOINT": null,
+  "VITE_SQS_ENDPOINT": null,
+  "VITE_AWS_CLIENTID": null,
+  "VITE_AWS_AUTHORITY": null,
+  "VITE_AWS_REDIRECTURI": null,
+  "VITE_AWS_COGNITODOMAIN": null
+}
